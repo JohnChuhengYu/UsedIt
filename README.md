@@ -23,19 +23,22 @@ UsedIt is a full-stack vocabulary learning platform that leverages local LLMs (v
 - **Framework:** FastAPI (Python)
 - **Database:** SQLite (with SQLModel/SQLAlchemy)
 - **Vector DB:** ChromaDB
-- **LLM Integration:** Ollama (`llama3.1:8b` by default)
+- **LLM Integration:** LangChain, Ollama (`llama3.1:8b` by default)
 
 ## 📁 Project Structure
 
 ```text
 UsedIt/
-├── frontend/           # React 19 SPA
-├── backend/            # FastAPI backend services
-│   ├── app/            # API routers and DB models
-│   ├── data/           # SQLite and ChromaDB data storage
-│   └── scripts/        # Automation and pipeline scripts
-├── docs/               # Additional documentation
-└── .gitignore          # Git ignore rules
+├── frontend/                 # React 19 SPA
+│   ├── src/                  # React components, pages, config, types
+│   └── package.json          # Node dependencies
+├── backend/                  # FastAPI backend services
+│   ├── app/                  # Application code (routers, models, database)
+│   ├── data/                 # Databases and datasets (SQLite, ChromaDB)
+│   ├── scripts/              # Data automation and maintenance scripts
+│   └── requirements.txt      # Python dependencies
+├── docs/                     # Additional documentation (empty for now)
+└── .gitignore                # Git ignore rules
 ```
 
 ## 🚀 Getting Started
@@ -77,6 +80,19 @@ npm install
 npm run dev
 ```
 *The frontend will run at `http://localhost:5173`.*
+
+## 🗄️ Data Management & Scripts
+
+The `backend/scripts/` directory contains tools for managing the vector database (ChromaDB) which provides real-world collocation examples for words.
+
+- **`automation_pipeline.py`**: Extracts example sentences from raw datasets, processes them, and ingests them into the Chroma vector database.
+- **`read_chromadb.py`**: A utility script to quickly inspect the contents of the `vocab-examples` collection inside ChromaDB to verify data insertion.
+- **`setup_chroma.py`**: A basic script to manually test ChromaDB initialization and insert a few dummy examples.
+
+To run any of the scripts, ensure your backend virtual environment is activated, then execute:
+```bash
+python backend/scripts/read_chromadb.py
+```
 
 ## 🗺️ Roadmap & Future Improvements
 
