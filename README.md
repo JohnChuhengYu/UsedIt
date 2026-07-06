@@ -1,4 +1,4 @@
-# UsedIt 🚀
+# <img src="./frontend/public/icon.svg" width="35" align="center" /> UsedIt
 
 > Vocabulary learning app — practice words in context with AI feedback.
 
