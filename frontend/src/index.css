@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "system-ui", sans-serif;
+  --font-serif: "Forum", "Georgia", serif;
+
+  --color-accent-pink: #EC4899;
+}
+
+/* Base styles */
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: #ffffff;
+  color: #000000;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typography styles */
+.font-editorial {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #e5e5e5;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #d4d4d4;
+}
+
+/* Utility for hiding scrollbar but allowing scroll */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-enter {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0; /* Starts hidden until animation kicks in */
+}
+
+/* Base class for staggered items to remain hidden before their delay */
+.stagger-item {
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes dotWave {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-4px);
+  }
+}
+.dot-wave {
+  animation: dotWave 1.2s ease-in-out infinite;
+}
+
+@keyframes labelPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+.label-pulse {
+  animation: labelPulse 3.5s ease-in-out infinite;
+}
+
+/* Minimalist word pulse for loading state */
+@keyframes wordOpacityPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+.animate-word-pulse {
+  animation: wordOpacityPulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Gooey blob animation */
+@keyframes blob1 {
+  0%, 100% { transform: translate(0, -2px); } /* full merge */
+  25% { transform: translate(0, -8px); } /* spread */
+  50% { transform: translate(0, -4px); } /* partial merge */
+  75% { transform: translate(0, -8px); } /* spread */
+}
+@keyframes blob2 {
+  0%, 100% { transform: translate(2px, 0); }
+  25% { transform: translate(8px, 0); }
+  50% { transform: translate(4px, 0); }
+  75% { transform: translate(8px, 0); }
+}
+@keyframes blob3 {
+  0%, 100% { transform: translate(0, 2px); }
+  25% { transform: translate(0, 8px); }
+  50% { transform: translate(0, 4px); }
+  75% { transform: translate(0, 8px); }
+}
+@keyframes blob4 {
+  0%, 100% { transform: translate(-2px, 0); }
+  25% { transform: translate(-8px, 0); }
+  50% { transform: translate(-4px, 0); }
+  75% { transform: translate(-8px, 0); }
+}
+@keyframes blobRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes blobScale {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.animate-blob-1 { animation: blob1 4.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0s infinite; }
+.animate-blob-2 { animation: blob2 4.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s infinite; }
+.animate-blob-3 { animation: blob3 4.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s infinite; }
+.animate-blob-4 { animation: blob4 4.0s cubic-bezier(0.34, 1.56, 0.64, 1) 0.05s infinite; }
+.animate-blob-rotate { animation: blobRotate 8.0s linear infinite; }
+.animate-blob-scale { animation: blobScale 2.0s ease-in-out infinite; }
