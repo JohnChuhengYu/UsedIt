@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import StatusBadge from '../components/StatusBadge';
 
-import { API_BASE } from '../config';
+import { api } from '../lib/api';
 import type { Judgment } from '../types';
 
 const MESSAGES = [
@@ -109,8 +109,7 @@ export default function PracticeSession() {
     setJudgment(null);
     setLoadingScene(true);
     
-    fetch(`${API_BASE}/words/${id}/scene`)
-      .then(r => r.ok ? r.json() : null)
+    api.get(`/words/${id}/scene`)
       .then(data => {
         if (data) {
           setWord(data.word);
@@ -133,18 +132,11 @@ export default function PracticeSession() {
     params.append('sentence', sentence);
 
     try {
-      const res = await fetch(`${API_BASE}/words/${id}/judge?${params.toString()}`, {
-        method: 'POST',
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setJudgment(data);
-      } else {
-        alert("Judgment failed. Please try again.");
-      }
+      const data = await api.post(`/words/${id}/judge?${params.toString()}`);
+      setJudgment(data);
     } catch (error) {
       console.error(error);
-      alert("Network error.");
+      alert("Judgment failed. Please try again.");
     } finally {
       setJudging(false);
     }

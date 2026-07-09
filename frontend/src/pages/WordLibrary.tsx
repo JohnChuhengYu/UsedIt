@@ -3,72 +3,130 @@ import { Link } from 'react-router-dom';
 import Nav from '../components/Nav';
 import StatusBadge from '../components/StatusBadge';
 
-import { API_BASE } from '../config';
+import { api } from '../lib/api';
 import type { Word } from '../types';
 
 export default function WordLibrary() {
   const [words, setWords] = useState<Word[]>([]);
+  const [stats, setStats] = useState({ mastered: 0, practicing: 0, new: 0, total: 0 });
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('ALL');
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newWord, setNewWord] = useState('');
   const [addError, setAddError] = useState('');
 
-  // Fetch words from API
+  // Infinite scroll state
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const fetchWords = async (tabStatus: string | null, pageNum: number) => {
+    const skip = pageNum * 20;
+    const statusParam = tabStatus ? `&status=${tabStatus}` : '';
+    const data = await api.get(`/words?skip=${skip}&limit=20${statusParam}`);
+    return data;
+  };
+
+  // Initial load
   useEffect(() => {
-    async function fetchWords() {
+    async function init() {
       try {
-        const res = await fetch(`${API_BASE}/words`);
-        if (res.ok) {
-          const data = await res.json();
-          setWords(data);
+        const [wordsData, statsData] = await Promise.all([
+          fetchWords(null, 0),
+          api.get('/words/stats')
+        ]);
+        setWords(wordsData);
+        setStats(statsData);
+        if (wordsData.length < 20) {
+          setHasMore(false);
         }
       } catch (e) {
-        console.error('Failed to fetch words:', e);
+        console.error('Failed to initialize:', e);
       } finally {
         setLoading(false);
       }
     }
-    fetchWords();
+    init();
   }, []);
+
+  const handleTabChange = async (newStatus: string | null) => {
+    setActiveTab(newStatus);
+    setPage(0);
+    setHasMore(true);
+    setLoading(true);
+    window.scrollTo(0, 0);
+    try {
+      const data = await fetchWords(newStatus, 0);
+      setWords(data);
+      if (data.length < 20) setHasMore(false);
+    } catch (e) {
+      console.error('Failed to switch tab:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadMoreWords = async () => {
+    setLoadingMore(true);
+    const nextPage = page + 1;
+    try {
+      const newWords = await fetchWords(activeTab, nextPage);
+      if (newWords.length === 0) {
+        setHasMore(false);
+      } else {
+        setWords(prev => [...prev, ...newWords]);
+        setPage(nextPage);
+        if (newWords.length < 20) {
+          setHasMore(false);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load more words:', e);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.documentElement.offsetHeight - 300 &&
+        !loadingMore &&
+        hasMore
+      ) {
+        loadMoreWords();
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadingMore, hasMore, page, activeTab]);
 
   // Add word handler
   const handleAddWord = async () => {
     if (!newWord.trim()) return;
     setAddError('');
     try {
-      const res = await fetch(`${API_BASE}/words`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: newWord.trim(), definition: '', example: '' }),
-      });
-      if (res.ok) {
-        const created = await res.json();
-        setWords(prev => [created, ...prev]);
-        setNewWord('');
-        setIsAddModalOpen(false);
-      } else if (res.status === 409) {
+      const created = await api.post('/words', { text: newWord.trim() });
+      setWords(prev => [created, ...prev]);
+      setStats(prev => ({
+        ...prev,
+        new: prev.new + 1,
+        total: prev.total + 1
+      }));
+      setNewWord('');
+      setIsAddModalOpen(false);
+    } catch (e: any) {
+      if (e.status === 409) {
         setAddError('This word already exists in your library.');
       } else {
-        setAddError('Failed to add word. Please try again.');
+        setAddError(e.message || 'Failed to add word. Please try again.');
       }
-    } catch (e) {
-      setAddError('Network error. Is the backend running?');
     }
   };
 
-  // Computed stats
-  const stats = {
-    mastered: words.filter(w => w.status === 'MASTERED').length,
-    practicing: words.filter(w => w.status === 'PRACTICING').length,
-    new: words.filter(w => w.status === 'NEW').length,
-    total: words.length,
-  };
-
-  // Filtered words
+  // Filtered words (search query only)
   const filteredWords = words
-    .filter(w => filter === 'ALL' || w.status === filter)
     .filter(w => w.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
                  (w.definition && w.definition.toLowerCase().includes(searchQuery.toLowerCase())));
 
@@ -160,26 +218,26 @@ export default function WordLibrary() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 md:gap-6 mb-16">
         <div className="flex gap-8 text-xs uppercase tracking-wide w-full md:w-auto overflow-x-auto pb-2 md:pb-0 whitespace-nowrap hide-scrollbar">
           <button 
-            onClick={() => setFilter('ALL')}
-            className={filter === 'ALL' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
+            onClick={() => handleTabChange(null)}
+            className={activeTab === null ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
           >
             ALL ({stats.total})
           </button>
           <button 
-            onClick={() => setFilter('NEW')}
-            className={filter === 'NEW' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
+            onClick={() => handleTabChange('NEW')}
+            className={activeTab === 'NEW' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
           >
             NEW ({stats.new})
           </button>
           <button 
-            onClick={() => setFilter('PRACTICING')}
-            className={filter === 'PRACTICING' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
+            onClick={() => handleTabChange('PRACTICING')}
+            className={activeTab === 'PRACTICING' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
           >
             PRACTICING ({stats.practicing})
           </button>
           <button 
-            onClick={() => setFilter('MASTERED')}
-            className={filter === 'MASTERED' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
+            onClick={() => handleTabChange('MASTERED')}
+            className={activeTab === 'MASTERED' ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal hover:text-black transition-colors'}
           >
             MASTERED ({stats.mastered})
           </button>

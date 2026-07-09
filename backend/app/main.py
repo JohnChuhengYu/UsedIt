@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import create_db_and_tables
-from app.routers import sessions, words, practice
+from app.routers import sessions, words, practice, auth
 
 
 @asynccontextmanager
@@ -32,7 +32,13 @@ load_dotenv()
 
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
 
-# ── CORS ───────────────────────────────────────────────────────────
+# ── Middleware ─────────────────────────────────────────────────────
+# SessionMiddleware is required by authlib's OAuth flow (stores state in session)
+from starlette.middleware.sessions import SessionMiddleware
+
+SESSION_SECRET = os.getenv("SESSION_SECRET", "change-this-to-a-random-secret")
+app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET)
+
 # Allow the Vite dev server (localhost:5173) to call this API.
 app.add_middleware(
     CORSMiddleware,
@@ -43,6 +49,7 @@ app.add_middleware(
 )
 
 # ── Routers ────────────────────────────────────────────────────────
+app.include_router(auth.router)
 app.include_router(words.router)
 app.include_router(sessions.router)
 app.include_router(practice.router)

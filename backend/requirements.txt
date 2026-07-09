@@ -2,3 +2,7 @@ fastapi
 uvicorn[standard]
 sqlmodel
 python-dotenv
+authlib
+httpx
+python-jose[cryptography]
+passlib[bcrypt]

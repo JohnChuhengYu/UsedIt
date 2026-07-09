@@ -1,17 +1,33 @@
-# Node
-node_modules/
-dist/
-.DS_Store
+# 环境变量和密钥
+.env
+.env.local
+*.env
+
+# 数据库文件
+dev.db
+*.db
+*.sqlite3
+usedit_chroma_db/
+backend/data/*.db
+backend/data/chroma_db/
 
 # Python
 __pycache__/
+*.pyc
 *.py[cod]
 *$py.class
 venv/
+.venv/
 env/
-.env
 
-# MacOS
+# Node
+node_modules/
+dist/
+.vite/
+
+# IDE & OS
+.vscode/
+.idea/
 .DS_Store
 
 # Data

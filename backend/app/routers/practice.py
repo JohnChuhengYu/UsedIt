@@ -4,22 +4,19 @@ Built with LangChain + ChatOllama, using Pydantic for structured output.
 """
 
 import os
-import random
 import chromadb
 import logging
-from enum import Enum
-from typing import Optional
 
 logger = logging.getLogger("uvicorn.error")
 
 from fastapi import APIRouter, Depends, HTTPException
 from langchain_ollama import ChatOllama
-from langchain_core.runnables import RunnableLambda
 from pydantic import BaseModel, Field
 from sqlmodel import Session, select
 
 from app.database import get_session
-from app.models import Word, PracticeSession
+from app.models import Dictionary, UserWord, PracticeSession, User
+from app.auth import get_current_user
 
 router = APIRouter(prefix="/words", tags=["Practice"])
 
@@ -64,7 +61,6 @@ class SceneOutput(BaseModel):
     scene: str = Field(
         description="A short, specific conversational scenario matching the reasoning above"
     )
-
 
 class JudgeOutput(BaseModel):
     correct: bool = Field(description="Whether the word is used with the correct meaning and grammar")
@@ -228,11 +224,18 @@ def generate_rag_enhanced_feedback(word: str, sentence: str, scene: str, natural
 # ── Routes ─────────────────────────────────────────────────────────
 
 @router.get("/{word_id}/scene")
-def get_scene(word_id: int, session: Session = Depends(get_session)):
-    """GET /words/{id}/scene — generate a conversational scene, letting the AI reason about the best context for this word."""
-    word = session.get(Word, word_id)
-    if not word:
+def get_scene(
+    word_id: int, 
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """GET /words/{id}/scene — generate a conversational scene."""
+    user_word = session.get(UserWord, word_id)
+    if not user_word or user_word.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Word not found")
+
+    dictionary_entry = session.get(Dictionary, user_word.dictionary_id)
+    word_text = dictionary_entry.text
 
     system_prompt = (
         "You are a scene generator for a vocabulary practice app. Your task has two steps:\n\n"
@@ -273,7 +276,7 @@ def get_scene(word_id: int, session: Session = Depends(get_session)):
         "situation involves someone being asked to do a task they may not want to do.'\n"
         "scene: 'Your manager says, \"I need someone to work this weekend — can you do it?\"'"
     )
-    user_prompt = f'Generate a conversational scenario for practicing the word "{word.text}".'
+    user_prompt = f'Generate a conversational scenario for practicing the word "{word_text}".'
 
     for attempt in range(3):
         try:
@@ -282,19 +285,19 @@ def get_scene(word_id: int, session: Session = Depends(get_session)):
             )
             
             logger.info(f"--- LLM Scene Generation ---")
-            logger.info(f"Word: {word.text}, Output: {result.model_dump()}")
+            logger.info(f"Word: {word_text}, Output: {result.model_dump()}")
             
             scene_text = result.scene
 
             word_count = len(scene_text.split())
-            contains_target_word = word.text.lower() in scene_text.lower()
+            contains_target_word = word_text.lower() in scene_text.lower()
             has_quoted_speech = '"' in scene_text or "'" in scene_text
 
             if word_count > 45 or contains_target_word or not has_quoted_speech or _has_json_artifacts(scene_text):
                 continue
 
             return {
-                "word": word.text,
+                "word": word_text,
                 "scene": scene_text,
                 "reasoning": result.context_reasoning,
             }
@@ -303,37 +306,46 @@ def get_scene(word_id: int, session: Session = Depends(get_session)):
             continue
 
     return {
-        "word": word.text,
-        "scene": f'A friend turns to you and says, "What do you think about this?" — try responding using "{word.text}".',
+        "word": word_text,
+        "scene": f'A friend turns to you and says, "What do you think about this?" — try responding using "{word_text}".',
         "reasoning": None,
     }
 
 
 @router.post("/{word_id}/judge")
-def judge_sentence(word_id: int, scene: str, sentence: str, session: Session = Depends(get_session)):
+def judge_sentence(
+    word_id: int, 
+    scene: str, 
+    sentence: str, 
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
     """POST /words/{id}/judge — judge a user's sentence, update word status if needed."""
-    word = session.get(Word, word_id)
-    if not word:
+    user_word = session.get(UserWord, word_id)
+    if not user_word or user_word.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Word not found")
 
+    dictionary_entry = session.get(Dictionary, user_word.dictionary_id)
+    word_text = dictionary_entry.text
+
     try:
-        meaning = judge_meaning(word.text, scene, sentence)
+        meaning = judge_meaning(word_text, scene, sentence)
         
         if not meaning.correct:
-            feedback_out = generate_simple_feedback(word.text, sentence, scene, meaning)
+            feedback_out = generate_simple_feedback(word_text, sentence, scene, meaning)
             natural = False
             feedback_text = feedback_out.feedback
             example_sentence = feedback_out.example_sentence
         else:
-            naturalness = judge_naturalness(word.text, scene, sentence)
+            naturalness = judge_naturalness(word_text, scene, sentence)
             if not naturalness.natural:
-                examples = get_reference_examples(word.text, n_results=3)
-                feedback_out = generate_rag_enhanced_feedback(word.text, sentence, scene, naturalness, examples)
+                examples = get_reference_examples(word_text, n_results=3)
+                feedback_out = generate_rag_enhanced_feedback(word_text, sentence, scene, naturalness, examples)
                 natural = False
                 feedback_text = feedback_out.feedback
                 example_sentence = feedback_out.example_sentence
             else:
-                feedback_out = generate_positive_feedback(word.text, sentence, meaning, naturalness)
+                feedback_out = generate_positive_feedback(word_text, sentence, meaning, naturalness)
                 natural = True
                 feedback_text = feedback_out.feedback
                 example_sentence = feedback_out.example_sentence
@@ -353,22 +365,33 @@ def judge_sentence(word_id: int, scene: str, sentence: str, session: Session = D
 
     passed = meaning.correct and natural
 
-    if word.status == "NEW":
-        word.status = "PRACTICING"
-        session.add(word)
+    if user_word.status == "NEW":
+        user_word.status = "PRACTICING"
+        session.add(user_word)
         session.commit()
+
+    # Save session
+    new_session = PracticeSession(
+        user_word_id=user_word.id,
+        scene=scene,
+        user_sentence=sentence,
+        ai_feedback=feedback_text,
+        passed=passed
+    )
+    session.add(new_session)
+    session.commit()
 
     recent = session.exec(
         select(PracticeSession)
-        .where(PracticeSession.word_id == word_id)
+        .where(PracticeSession.user_word_id == word_id)
         .order_by(PracticeSession.created_at.desc())
         .limit(3)
     ).all()
 
-    consecutive_passed = [passed] + [s.passed for s in recent]
+    consecutive_passed = [s.passed for s in recent]
     if len(consecutive_passed) >= 4 and all(consecutive_passed[:4]):
-        word.status = "MASTERED"
-        session.add(word)
+        user_word.status = "MASTERED"
+        session.add(user_word)
         session.commit()
 
     return {
@@ -377,7 +400,7 @@ def judge_sentence(word_id: int, scene: str, sentence: str, session: Session = D
         "passed": passed,
         "feedback": feedback_text,
         "example_sentence": example_sentence,
-        "word_status": word.status,
+        "word_status": user_word.status,
         "meaning_reasoning": meaning.reasoning,
         "naturalness_reasoning": naturalness.reasoning if 'naturalness' in locals() else None,
         "meaning_rating": meaning.rating_word,

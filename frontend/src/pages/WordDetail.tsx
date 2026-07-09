@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 
-import { API_BASE } from '../config';
+import { api } from '../lib/api';
 
 export default function WordDetail() {
   const { id } = useParams();
@@ -17,7 +17,7 @@ export default function WordDetail() {
 
   // Fetch all words for prev/next navigation
   useEffect(() => {
-    fetch(`${API_BASE}/words`).then(r => r.ok ? r.json() : []).then(setAllWords).catch(() => {});
+    api.get('/words').then(setAllWords).catch(() => {});
   }, []);
 
   const currentIndex = allWords.findIndex(w => w.id === wordId);
@@ -28,13 +28,10 @@ export default function WordDetail() {
     async function fetchData() {
       try {
         setLoading(true);
-        const wordRes = await fetch(`${API_BASE}/words/${wordId}`);
-        if (wordRes.ok) {
-          const wData = await wordRes.json();
-          setWordData(wData);
-          setCollocations(wData.collocations || []);
-          setSessions(wData.sessions || []);
-        }
+        const wData = await api.get(`/words/${wordId}`);
+        setWordData(wData);
+        setCollocations(wData.collocations || []);
+        setSessions(wData.sessions || []);
       } catch (e) {
         console.error("Failed to fetch word details:", e);
       } finally {
