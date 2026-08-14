@@ -81,6 +81,11 @@ npm run dev
 ```
 *The frontend will run at `http://localhost:5173`.*
 
+### 3. Default Test Account
+You can log into the application using the following test account:
+- **用户名**: `testuser`
+- **密码**: `password123`
+
 ## 🗄️ Data Management & Scripts
 
 The `backend/scripts/` directory contains tools for managing the vector database (ChromaDB) which provides real-world collocation examples for words.
