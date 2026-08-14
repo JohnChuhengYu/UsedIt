@@ -83,8 +83,8 @@ npm run dev
 
 ### 3. Default Test Account
 You can log into the application using the following test account:
-- **用户名**: `testuser`
-- **密码**: `password123`
+- **Username**: `testuser`
+- **Password**: `password123`
 
 ## 🗄️ Data Management & Scripts
 
