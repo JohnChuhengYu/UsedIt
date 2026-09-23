@@ -2,6 +2,9 @@
 
 本指南详细说明 UsedIt 的各个服务组件（后端 API、数据库、AI 本地大模型、前端）的启动方式与工作原理。
 
+> 🧠 **想深入了解向量数据库与 AI 核心技术？** 
+> 请参阅深度解析文档：[**docs/BACKEND_AND_AI_TECH_CN.md**](./BACKEND_AND_AI_TECH_CN.md)（英文原版：[English Doc](./BACKEND_AND_AI_TECH.md)），全面剖析 ChromaDB 原理、RAG 造句改写、双温度解耦、防偏见标定与级联评判管线。
+
 ---
 
 ## 🧭 服务与架构总览

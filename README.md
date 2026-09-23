@@ -40,7 +40,9 @@ UsedIt/
 │   ├── .env.example          # Backend environment template
 │   └── requirements.txt      # Python dependencies
 ├── docs/                     # Additional documentation
-│   └── QUICKSTART_CN.md      # 📖 完整中文启动与数据库配置指南
+│   ├── BACKEND_AND_AI_TECH.md# Backend architecture & Vector DB (ChromaDB) deep dive (English)
+│   ├── BACKEND_AND_AI_TECH_CN.md # Backend architecture & Vector DB (ChromaDB) deep dive (Chinese)
+│   └── QUICKSTART_CN.md      # Chinese quickstart guide (中文启动指南)
 └── .gitignore                # Git ignore rules
 ```
 
@@ -56,7 +58,9 @@ UsedIt/
 | **Local LLM** | Ollama (`llama3.1:8b`) | `http://localhost:11434` | **Yes** | `ollama run llama3.1:8b` |
 | **Frontend** | React 19 + Vite | `http://localhost:5173` | **Yes** | `cd frontend && npm run dev` |
 
-> 🇨🇳 **Looking for Chinese instructions?** See [docs/QUICKSTART_CN.md](./docs/QUICKSTART_CN.md) for the complete Chinese guide.
+> 📚 **Documentation:**
+> - **Backend Architecture & Vector DB Deep Dive**: [English Version](./docs/BACKEND_AND_AI_TECH.md) \| [中文版本](./docs/BACKEND_AND_AI_TECH_CN.md)
+> - 🇨🇳 **Chinese Quickstart Guide (中文快速启动)**: [docs/QUICKSTART_CN.md](./docs/QUICKSTART_CN.md)
 
 ---
 
@@ -224,7 +228,24 @@ Explore and test interactive endpoints at **[http://localhost:8000/docs](http://
 | | `POST` | `/practice/{word_id}/judge` | Bearer | Evaluate user sentence for meaning, grammar, and naturalness with AI feedback |
 | **Sessions** | `GET` | `/sessions` | Bearer | List practice history sessions for current user |
 | | `POST` | `/sessions` | Bearer | Record a completed practice session |
-| | `GET` | `/sessions/stats` | Bearer | Aggregate practice statistics (`total_sessions`, `passed_sessions`, `accuracy`) |
+---
+
+## 🧠 Vector DB & LLM Engineering Highlights
+
+UsedIt combines vector retrieval and fine-tuned LLM prompting patterns to achieve human-like, accurate language tutoring:
+
+1. **Why Vector DB (ChromaDB)?**
+   - **Semantic Collocation Retrieval**: Unlike keyword search (`LIKE %word%`), ChromaDB embeds sentences into vector space to find collocations that capture authentic native usage.
+   - **RAG-Driven Correction**: When a learner constructs a sentence that is grammatically valid but unnatural (`Slightly Off` / `Awkward`), ChromaDB retrieves 3 native-speaker reference sentences as few-shot context for the LLM to rewrite a natural alternative.
+2. **Dual-LLM Temperature Separation**:
+   - `temperature=0.3` (Creative LLM): Generates rich, diverse social conversational scenes (`/practice/{id}/scene`).
+   - `temperature=0.1` (Deterministic Judge LLM): Evaluates meaning and naturalness with minimal variance across sessions.
+3. **Structured Outputs (Pydantic + LangChain)**:
+   - Eliminates fragile regex parsing by enforcing strict schema contracts (`SceneOutput`, `MeaningJudgment`, `NaturalnessJudgment`, `FeedbackOutput`).
+4. **Few-Shot Calibration & Anti-Bias Rules**:
+   - Explicit prompt constraints ensure basic words (`thin`) aren't judged with leniency while rare words (`eloquent`) aren't unfairly penalized. Short and simple sentences are calibrated as `Native` (`Simplicity != Awkwardness`).
+
+👉 **Read the comprehensive technical deep dive**: [English Version](./docs/BACKEND_AND_AI_TECH.md) \| [中文版本](./docs/BACKEND_AND_AI_TECH_CN.md)
 
 ---
 
