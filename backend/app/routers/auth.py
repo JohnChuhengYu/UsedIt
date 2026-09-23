@@ -1,17 +1,19 @@
 """
-UsedIt — Authentication routes (register, login, Google OAuth).
+UsedIt — Authentication routes (register, login, Google OAuth, user profile).
 """
 
 import os
+from typing import Literal
 
 from authlib.integrations.starlette_client import OAuth
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from app.database import get_session
 from app.models import User, UserCreate, UserLogin, UserRead
-from app.auth import hash_password, verify_password, create_access_token
+from app.auth import hash_password, verify_password, create_access_token, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -43,6 +45,44 @@ def login(body: UserLogin, session: Session = Depends(get_session)):
 
     token = create_access_token(data={"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer"}
+
+
+# ── User Profile ──────────────────────────────────────────────────
+
+class UserUpdate(BaseModel):
+    grading_strictness: Literal["Lenient", "Normal", "Strict"]
+
+
+@router.get("/me")
+def get_me(
+    current_user: User = Depends(get_current_user),
+):
+    """GET /auth/me — return the current authenticated user's profile."""
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "grading_strictness": current_user.grading_strictness,
+        "created_at": current_user.created_at,
+    }
+
+
+@router.patch("/me")
+def update_me(
+    body: UserUpdate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """PATCH /auth/me — update the current user's settings."""
+    current_user.grading_strictness = body.grading_strictness
+    session.add(current_user)
+    session.commit()
+    session.refresh(current_user)
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "grading_strictness": current_user.grading_strictness,
+        "created_at": current_user.created_at,
+    }
 
 
 # ── Google OAuth ──────────────────────────────────────────────────

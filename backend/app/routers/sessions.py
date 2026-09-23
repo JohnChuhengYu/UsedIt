@@ -12,6 +12,29 @@ from app.auth import get_current_user
 router = APIRouter(prefix="/sessions", tags=["Sessions"])
 
 
+@router.get("/stats")
+def get_session_stats(
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user),
+):
+    """GET /sessions/stats — return aggregate practice stats for the current user."""
+    statement = (
+        select(PracticeSession)
+        .join(UserWord)
+        .where(UserWord.user_id == current_user.id)
+    )
+    all_sessions = session.exec(statement).all()
+    total = len(all_sessions)
+    passed = sum(1 for s in all_sessions if s.passed)
+    accuracy = round(passed / total * 100, 1) if total > 0 else 0
+
+    return {
+        "total_sessions": total,
+        "passed_sessions": passed,
+        "accuracy": accuracy,
+    }
+
+
 @router.get("", response_model=list[SessionRead])
 def list_sessions(
     session: Session = Depends(get_session),

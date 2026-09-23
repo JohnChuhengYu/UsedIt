@@ -24,6 +24,7 @@ class User(SQLModel, table=True):
     username: str = Field(unique=True, index=True)
     password_hash: str = Field(default="")  # empty for OAuth-only users
     google_id: str | None = Field(default=None, unique=True, index=True)
+    grading_strictness: str = Field(default="Normal")
     created_at: datetime = Field(default_factory=_utcnow)
 
 

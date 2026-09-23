@@ -6,3 +6,7 @@ authlib
 httpx
 python-jose[cryptography]
 passlib[bcrypt]
+requests
+chromadb
+langchain-ollama
+itsdangerous

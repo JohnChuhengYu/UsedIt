@@ -19,8 +19,10 @@ def extract_sentences_to_csv():
         return set()
         
     conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT text FROM word")
+    try:
+        cursor.execute("SELECT text FROM dictionary")
+    except sqlite3.OperationalError:
+        cursor.execute("SELECT text FROM word")
     words = {row[0].lower() for row in cursor.fetchall()}
     conn.close()
     

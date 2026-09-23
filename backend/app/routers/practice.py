@@ -50,6 +50,9 @@ ollama_url = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
 base_url = ollama_url.replace("/api/generate", "") if ollama_url.endswith("/api/generate") else ollama_url
 
 llm = ChatOllama(model=ollama_model, base_url=base_url, temperature=0.3)
+# Separate low-temperature LLM for judgment calls — reduces run-to-run
+# variance on borderline cases without affecting creative generation.
+judge_llm = ChatOllama(model=ollama_model, base_url=base_url, temperature=0.1)
 
 
 # ── Structured output schemas ─────────────────────────────────────
@@ -82,8 +85,8 @@ class FeedbackOutput(BaseModel):
     example_sentence: str = Field(description="A corrected example sentence that MUST include the exact target word, demonstrating correct natural usage in the same scene. Leave empty string if no example is needed.")
 
 scene_model = llm.with_structured_output(SceneOutput)
-meaning_model = llm.with_structured_output(MeaningJudgment)
-naturalness_model = llm.with_structured_output(NaturalnessJudgment)
+meaning_model = judge_llm.with_structured_output(MeaningJudgment)
+naturalness_model = judge_llm.with_structured_output(NaturalnessJudgment)
 feedback_model = llm.with_structured_output(FeedbackOutput)
 
 def _has_json_artifacts(text: str) -> bool:
@@ -91,16 +94,31 @@ def _has_json_artifacts(text: str) -> bool:
         return False
     return any(c in text for c in ['{', '}', '":'])
 
-def judge_meaning(word: str, scene: str, sentence: str) -> MeaningJudgment:
+def judge_meaning(word: str, scene: str, sentence: str, difficulty: str | None = None) -> MeaningJudgment:
     system = (
         "You are a precise grammar and semantics judge for a vocabulary app. "
         "Analyze ONLY whether the target word's meaning fits its use here, and whether "
         "the grammar around it is correct. Ignore style or naturalness entirely — a "
         "sentence can be grammatically correct but sound awkward, and that is NOT your concern.\n\n"
+        "ANTI-BIAS RULE (critical): Apply the EXACT SAME standard of strictness regardless "
+        "of whether the target word is simple/common or advanced/rare. A common word used "
+        "incorrectly must be marked wrong. An advanced word used correctly, even in a simple "
+        "sentence, must be marked correct. Do not give simple words leniency, and do not give "
+        "advanced words extra scrutiny beyond what the rubric requires.\n\n"
         "Common failure patterns to check for:\n"
         "- Wrong part of speech (e.g. using an adjective as a noun)\n"
         "- Wrong meaning sense (word has multiple meanings, wrong one used)\n"
         "- Missing required grammar structure (e.g. 'whether' often needs 'or')\n\n"
+        "Calibration examples (apply this exact strictness to every word, regardless of difficulty):\n"
+        "- 'Correct': subject uses word with right part of speech and right sense, even if the "
+        "sentence is very simple. Example: 'The soup is thin' for word 'thin' → Correct, even "
+        "though the sentence is basic.\n"
+        "- 'Close': meaning is right, but there's a small grammar slip that doesn't obscure "
+        "meaning. Example: 'She very eloquent' (missing 'is') → Close, not Incorrect, because "
+        "the word itself is used with correct sense.\n"
+        "- 'Incorrect': wrong part of speech, wrong sense, or the sentence doesn't actually "
+        "demonstrate understanding of the word. Example: 'I ate an eloquent sandwich' → "
+        "Incorrect, regardless of how advanced the word is, because the sense is simply wrong.\n\n"
         "Keep your reasoning to ONE sentence. Do not explain the word's general definition "
         "at length — just state whether this specific usage is correct and why, briefly.\n"
         "Also provide a rating_word: one word only, no explanation, from the given options."
@@ -110,6 +128,7 @@ def judge_meaning(word: str, scene: str, sentence: str) -> MeaningJudgment:
     for _ in range(3):
         result = meaning_model.invoke([("system", system), ("human", user)])
         if not _has_json_artifacts(result.reasoning):
+            logger.info(f"[BIAS AUDIT] judge_meaning | word={word} | difficulty={difficulty} | rating_word={result.rating_word}")
             return result
             
     return MeaningJudgment(
@@ -118,21 +137,42 @@ def judge_meaning(word: str, scene: str, sentence: str) -> MeaningJudgment:
         rating_word="INCORRECT"
     )
 
-def judge_naturalness(word: str, scene: str, sentence: str) -> NaturalnessJudgment:
+def judge_naturalness(word: str, scene: str, sentence: str, difficulty: str | None = None) -> NaturalnessJudgment:
     system = (
         "You are a native-speaker naturalness judge for a vocabulary app. Assume grammar "
         "and meaning are already correct and already explained elsewhere — do NOT restate "
         "or re-explain what the word means. Focus ONLY on whether a native speaker would "
-        "phrase it this way, or whether it sounds textbook-ish, overly formal, or translated.\n\n"
+        "phrase it this way in everyday conversation.\n\n"
+        "ANTI-BIAS RULE (critical): Apply the EXACT SAME standard of strictness regardless "
+        "of whether the target word is simple/common or advanced/rare. A common word used "
+        "unnaturally must be marked down. An advanced word used naturally, even in a simple "
+        "sentence, must be marked 'Native'. Do not give simple words leniency, and do not "
+        "give advanced words extra scrutiny beyond what the rubric requires.\n\n"
+        "SIMPLICITY IS NOT AWKWARDNESS: A simple, short, direct sentence is NOT automatically "
+        "'Slightly Off'. Natural speech is often short and simple. 'The soup is thin' IS natural. "
+        "'I'm reluctant to work on the weekend' IS natural. Only mark down naturalness for "
+        "ACTUAL problems: wrong collocation, unnatural word order, translated-sounding phrasing, "
+        "or bizarre register mismatch. Do NOT penalize directness or brevity.\n\n"
+        "Calibration examples (apply this exact standard to every word):\n"
+        "- 'Native': The sentence sounds like something a real person would actually say. "
+        "Example: 'The soup is thin' → Native. Example: 'You were very eloquent' → Native. "
+        "Simple and direct does not mean unnatural.\n"
+        "- 'Slightly Off': Mostly fine but one phrasing choice sounds a bit unusual. "
+        "Example: 'The soup possesses a thin quality' → Slightly Off (overly formal phrasing).\n"
+        "- 'Awkward': Multiple unnatural elements or clearly translated phrasing. "
+        "Example: 'It makes me to feel reluctant about the working' → Awkward.\n\n"
         "Keep your reasoning to ONE sentence. Do not repeat the word's definition — just "
-        "state what specifically sounds off (word choice, phrasing, tone) and why.\n"
-        "Also provide a rating_word: one word only, no explanation, from the given options."
+        "state what specifically sounds off (word choice, phrasing, tone) and why, or say it "
+        "sounds natural.\n"
+        "rating_word MUST be exactly one of: 'Native', 'Slightly Off', or 'Awkward'. "
+        "No other values are allowed."
     )
     user = f'Word: "{word}"\nScene: {scene}\nSentence: {sentence}'
     
     for _ in range(3):
         result = naturalness_model.invoke([("system", system), ("human", user)])
         if not _has_json_artifacts(result.reasoning):
+            logger.info(f"[BIAS AUDIT] judge_naturalness | word={word} | difficulty={difficulty} | rating_word={result.rating_word}")
             return result
             
     return NaturalnessJudgment(
@@ -312,6 +352,22 @@ def get_scene(
     }
 
 
+def _determine_passed(meaning_rating: str, naturalness_rating: str | None, strictness: str) -> bool:
+    """Determine pass/fail based on the user's grading strictness setting."""
+    meaning_lower = meaning_rating.lower()
+    nat_lower = naturalness_rating.lower() if naturalness_rating else ""
+
+    if meaning_lower == "incorrect":
+        return False
+
+    if strictness == "Strict":
+        return meaning_lower == "correct" and nat_lower == "native"
+    elif strictness == "Lenient":
+        return meaning_lower in ("correct", "close")
+    else:  # Normal (default)
+        return meaning_lower == "correct" and nat_lower in ("native", "slightly off")
+
+
 @router.post("/{word_id}/judge")
 def judge_sentence(
     word_id: int, 
@@ -329,7 +385,8 @@ def judge_sentence(
     word_text = dictionary_entry.text
 
     try:
-        meaning = judge_meaning(word_text, scene, sentence)
+        word_difficulty = dictionary_entry.difficulty
+        meaning = judge_meaning(word_text, scene, sentence, difficulty=word_difficulty)
         
         if not meaning.correct:
             feedback_out = generate_simple_feedback(word_text, sentence, scene, meaning)
@@ -337,7 +394,7 @@ def judge_sentence(
             feedback_text = feedback_out.feedback
             example_sentence = feedback_out.example_sentence
         else:
-            naturalness = judge_naturalness(word_text, scene, sentence)
+            naturalness = judge_naturalness(word_text, scene, sentence, difficulty=word_difficulty)
             if not naturalness.natural:
                 examples = get_reference_examples(word_text, n_results=3)
                 feedback_out = generate_rag_enhanced_feedback(word_text, sentence, scene, naturalness, examples)
@@ -363,7 +420,8 @@ def judge_sentence(
         logger.error(f"AI judgment failed: {e}")
         raise HTTPException(status_code=503, detail="AI judgment failed — please try again")
 
-    passed = meaning.correct and natural
+    nat_rating = naturalness.rating_word if 'naturalness' in locals() else None
+    passed = _determine_passed(meaning.rating_word, nat_rating, current_user.grading_strictness)
 
     if user_word.status == "NEW":
         user_word.status = "PRACTICING"
@@ -388,7 +446,7 @@ def judge_sentence(
         .limit(3)
     ).all()
 
-    consecutive_passed = [s.passed for s in recent]
+    consecutive_passed = [s.passed for s in recent] 
     if len(consecutive_passed) >= 4 and all(consecutive_passed[:4]):
         user_word.status = "MASTERED"
         session.add(user_word)
@@ -404,5 +462,5 @@ def judge_sentence(
         "meaning_reasoning": meaning.reasoning,
         "naturalness_reasoning": naturalness.reasoning if 'naturalness' in locals() else None,
         "meaning_rating": meaning.rating_word,
-        "naturalness_rating": naturalness.rating_word if 'naturalness' in locals() else None,
+        "naturalness_rating": nat_rating,
     }
