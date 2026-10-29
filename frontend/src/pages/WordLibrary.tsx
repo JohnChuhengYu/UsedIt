@@ -4,7 +4,7 @@ import Nav from '../components/Nav';
 import StatusBadge from '../components/StatusBadge';
 
 import { api } from '../lib/api';
-import type { Word, DeckSummary, DeckDetail } from '../types';
+import type { Word } from '../types';
 
 export default function WordLibrary() {
   const [words, setWords] = useState<Word[]>([]);
@@ -13,19 +13,10 @@ export default function WordLibrary() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Modals state
+  // Add Word modal state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newWord, setNewWord] = useState('');
   const [addError, setAddError] = useState('');
-
-  // Academic Decks state
-  const [decks, setDecks] = useState<DeckSummary[]>([]);
-  const [isPresetModalOpen, setIsPresetModalOpen] = useState(false);
-  const [selectedDeckId, setSelectedDeckId] = useState<string>('');
-  const [selectedDeckDetail, setSelectedDeckDetail] = useState<DeckDetail | null>(null);
-  const [loadingDeckDetail, setLoadingDeckDetail] = useState(false);
-  const [importingDeckId, setImportingDeckId] = useState<string | null>(null);
-  const [importNotification, setImportNotification] = useState<string | null>(null);
 
   // Infinite scroll state
   const [page, setPage] = useState(0);
@@ -43,17 +34,12 @@ export default function WordLibrary() {
   useEffect(() => {
     async function init() {
       try {
-        const [wordsData, statsData, decksData] = await Promise.all([
+        const [wordsData, statsData] = await Promise.all([
           fetchWords(null, 0),
           api.get('/words/stats'),
-          api.get('/decks').catch(() => [])
         ]);
         setWords(wordsData);
         setStats(statsData);
-        setDecks(decksData);
-        if (decksData.length > 0) {
-          setSelectedDeckId(decksData[0].id);
-        }
         if (wordsData.length < 20) {
           setHasMore(false);
         }
@@ -65,24 +51,6 @@ export default function WordLibrary() {
     }
     init();
   }, []);
-
-  // Fetch full detail when selecting a deck in modal
-  useEffect(() => {
-    if (!isPresetModalOpen || !selectedDeckId) return;
-    
-    async function loadDetail() {
-      setLoadingDeckDetail(true);
-      try {
-        const detail = await api.get(`/decks/${selectedDeckId}`);
-        setSelectedDeckDetail(detail);
-      } catch (e) {
-        console.error('Failed to load deck detail:', e);
-      } finally {
-        setLoadingDeckDetail(false);
-      }
-    }
-    loadDetail();
-  }, [isPresetModalOpen, selectedDeckId]);
 
   const handleTabChange = async (newStatus: string | null) => {
     setActiveTab(newStatus);
@@ -159,32 +127,6 @@ export default function WordLibrary() {
     }
   };
 
-  // Import corpus deck handler
-  const handleImportDeck = async (deckId: string) => {
-    setImportingDeckId(deckId);
-    try {
-      const res = await api.post(`/decks/${deckId}/import`);
-      const [wordsData, statsData] = await Promise.all([
-        fetchWords(activeTab, 0),
-        api.get('/words/stats')
-      ]);
-      setWords(wordsData);
-      setStats(statsData);
-      setPage(0);
-      setHasMore(wordsData.length >= 20);
-      
-      const skippedMsg = res.skipped_count > 0 ? ` (${res.skipped_count} ALREADY PRESENT)` : '';
-      setImportNotification(`IMPORTED ${res.imported_count} WORDS FROM "${res.title.toUpperCase()}"${skippedMsg}`);
-      setTimeout(() => setImportNotification(null), 4000);
-    } catch (e: any) {
-      console.error('Failed to import corpus deck:', e);
-      setImportNotification('IMPORT FAILED. PLEASE CHECK BACKEND CONNECTION.');
-      setTimeout(() => setImportNotification(null), 4000);
-    } finally {
-      setImportingDeckId(null);
-    }
-  };
-
   // Filtered words (search query only)
   const filteredWords = words
     .filter(w => w.text.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -212,19 +154,6 @@ export default function WordLibrary() {
 
   return (
     <div className="animate-enter relative">
-      {/* Toast Notification */}
-      {importNotification && (
-        <div className="fixed top-6 right-6 z-50 bg-black text-white px-5 py-3 shadow-xl border-l-2 border-[#EC4899] flex items-center gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <span className="text-xs font-mono tracking-wider">{importNotification}</span>
-          <button 
-            onClick={() => setImportNotification(null)}
-            className="text-gray-400 hover:text-white text-xs"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
       {/* Add Word Modal Overlay */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
@@ -262,124 +191,6 @@ export default function WordLibrary() {
                 className="text-white bg-black hover:bg-neutral-800 uppercase tracking-wider px-6 py-2.5 transition-colors"
               >
                 Add Word
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Academic Decks Modal */}
-      {isPresetModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 md:p-8">
-          <div className="bg-white max-w-4xl w-full max-h-[85vh] shadow-2xl flex flex-col relative border border-gray-200 overflow-hidden">
-            {/* Header */}
-            <div className="p-8 border-b border-gray-100 flex justify-between items-start">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-gray-400 font-mono block mb-1">
-                  Corpus Registry · {decks.length} Collections
-                </span>
-                <h2 className="font-editorial text-3xl md:text-4xl text-black font-normal">
-                  Standardized Linguistic Corpora
-                </h2>
-                <p className="text-gray-500 text-xs mt-1">
-                  Verified lexical datasets derived from peer-reviewed publications and standardized testing benchmarks.
-                </p>
-              </div>
-              <button 
-                onClick={() => setIsPresetModalOpen(false)}
-                className="text-gray-400 hover:text-black p-1 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Deck Navigation Tabs */}
-            <div className="flex border-b border-gray-100 overflow-x-auto hide-scrollbar bg-neutral-50/50">
-              {decks.map((deck) => (
-                <button
-                  key={deck.id}
-                  onClick={() => setSelectedDeckId(deck.id)}
-                  className={`px-6 py-3.5 text-xs font-mono tracking-wider uppercase whitespace-nowrap transition-all border-b-2 ${
-                    selectedDeckId === deck.id
-                      ? 'border-black text-black bg-white font-semibold'
-                      : 'border-transparent text-gray-400 hover:text-black'
-                  }`}
-                >
-                  [{deck.code}] {deck.title}
-                </button>
-              ))}
-            </div>
-
-            {/* Detail View */}
-            <div className="p-8 overflow-y-auto flex-1">
-              {loadingDeckDetail ? (
-                <div className="py-24 text-center text-gray-400 text-xs font-mono">LOADING CORPUS ENTRIES...</div>
-              ) : selectedDeckDetail ? (
-                <>
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8 pb-8 border-b border-gray-100">
-                    <div className="max-w-xl">
-                      <div className="flex items-center gap-3 mb-2 font-mono text-[11px] text-gray-400 uppercase tracking-wider">
-                        <span>{selectedDeckDetail.badge}</span>
-                        <span>·</span>
-                        <span>CEFR {selectedDeckDetail.cefr_level}</span>
-                        <span>·</span>
-                        <span>{selectedDeckDetail.word_count} Words</span>
-                      </div>
-                      <h3 className="font-editorial text-2xl text-black font-normal">{selectedDeckDetail.title}</h3>
-                      <p className="text-xs text-gray-400 italic mb-3 font-serif">{selectedDeckDetail.subtitle}</p>
-                      <p className="text-xs text-gray-600 leading-relaxed mb-4">{selectedDeckDetail.description}</p>
-                      
-                      {/* Academic Citation Blockquote */}
-                      <div className="border-l-2 border-black pl-4 py-1.5 bg-neutral-50 text-[11px] text-gray-600 font-mono leading-relaxed">
-                        <span className="font-semibold text-black">Source: </span>
-                        {selectedDeckDetail.citation}
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => handleImportDeck(selectedDeckDetail.id)}
-                      disabled={importingDeckId === selectedDeckDetail.id}
-                      className="bg-black text-white hover:bg-neutral-800 disabled:bg-gray-300 text-xs uppercase tracking-wider px-6 py-3 font-medium transition-colors shrink-0 self-start"
-                    >
-                      {importingDeckId === selectedDeckDetail.id ? 'Importing...' : `Import Collection (${selectedDeckDetail.word_count} Words)`}
-                    </button>
-                  </div>
-
-                  {/* Words List */}
-                  <div className="space-y-6">
-                    {selectedDeckDetail.words.map((item, idx) => (
-                      <div key={idx} className="border-b border-gray-50 pb-5 last:border-b-0">
-                        <div className="flex items-baseline gap-3 mb-1">
-                          <span className="font-editorial text-2xl text-black font-normal">{item.text}</span>
-                          {item.phonetic && <span className="text-xs text-gray-400 font-mono">{item.phonetic}</span>}
-                          {item.part_of_speech && <span className="text-xs italic text-gray-400">({item.part_of_speech})</span>}
-                          {item.difficulty && (
-                            <span className="text-[10px] uppercase font-mono tracking-widest text-gray-400 ml-auto">
-                              {item.difficulty}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-700 leading-relaxed mb-2">{item.definition}</p>
-                        <p className="text-xs text-gray-500 italic border-l border-gray-200 pl-3 leading-relaxed">
-                          "{item.example}"
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : null}
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 px-8 bg-neutral-50 border-t border-gray-100 flex justify-between items-center text-[11px] text-gray-400 font-mono">
-              <span>Entries are cached into global Dictionary and mapped to your personal library.</span>
-              <button 
-                onClick={() => setIsPresetModalOpen(false)}
-                className="text-black uppercase tracking-wider hover:underline"
-              >
-                Close
               </button>
             </div>
           </div>
@@ -445,7 +256,7 @@ export default function WordLibrary() {
           </button>
         </div>
         
-        <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto">
+        <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
           <div className="relative w-full md:w-64">
             <input
               type="text"
@@ -465,18 +276,10 @@ export default function WordLibrary() {
               </button>
             )}
           </div>
-          
-          <button 
-            onClick={() => setIsPresetModalOpen(true)}
-            className="text-xs uppercase tracking-wider font-medium text-gray-600 hover:text-black border border-gray-200 hover:border-black px-4 py-2 transition-colors shrink-0"
-            title="Browse standardized linguistic corpora"
-          >
-            Curated Decks
-          </button>
 
           <button 
             onClick={() => setIsAddModalOpen(true)}
-            className="text-xs uppercase tracking-wider font-medium text-white bg-black hover:bg-neutral-800 px-5 py-2 transition-colors shrink-0"
+            className="text-xs uppercase tracking-wider font-medium text-white bg-black hover:bg-neutral-800 px-5 py-2.5 transition-colors shrink-0"
           >
             + Add Word
           </button>
@@ -485,56 +288,25 @@ export default function WordLibrary() {
 
       {/* Main Content Area */}
       {words.length === 0 ? (
-        /* Cold Start: Minimalist Curated Corpora Showcase */
-        <div className="border-t border-gray-100 pt-16 mb-16">
-          <div className="max-w-2xl mb-12">
-            <span className="text-xs uppercase tracking-widest text-gray-400 font-mono block mb-2">
-              00 · Reference Corpora
-            </span>
-            <h2 className="font-editorial text-3xl md:text-4xl text-black font-normal mb-3">
-              Select a linguistic corpus to begin.
-            </h2>
-            <p className="text-gray-500 text-xs leading-relaxed">
-              Your library is currently empty. Initialize your vocabulary from peer-reviewed academic lists and standardized corpus samples with authentic citations.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {decks.map((deck, idx) => (
-              <div 
-                key={deck.id}
-                className="bg-white border border-gray-200/80 p-8 flex flex-col justify-between hover:border-black transition-all"
-              >
-                <div>
-                  <div className="flex items-center justify-between font-mono text-[11px] text-gray-400 uppercase tracking-wider mb-4">
-                    <span>[{deck.code}] 0{idx + 1} / 04</span>
-                    <span>CEFR {deck.cefr_level} · {deck.word_count} Words</span>
-                  </div>
-
-                  <h3 className="font-editorial text-2xl text-black font-normal mb-1">{deck.title}</h3>
-                  <p className="text-xs text-gray-400 italic font-serif mb-3">{deck.subtitle}</p>
-                  <p className="text-xs text-gray-600 leading-relaxed mb-4">{deck.description}</p>
-                  
-                  {/* Academic Citation Reference */}
-                  <p className="text-[11px] text-gray-400 font-mono italic mb-6 border-l border-gray-200 pl-3 leading-relaxed">
-                    Ref: {deck.citation}
-                  </p>
-
-                  <div className="font-serif italic text-xs text-gray-500 mb-6 leading-relaxed">
-                    {deck.words_preview.join(' · ')}
-                    {deck.word_count > deck.words_preview.length && ` · +${deck.word_count - deck.words_preview.length} more`}
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleImportDeck(deck.id)}
-                  disabled={importingDeckId === deck.id}
-                  className="w-full text-xs uppercase tracking-wider py-3 border border-black text-black hover:bg-black hover:text-white transition-colors font-medium text-center"
-                >
-                  {importingDeckId === deck.id ? 'Importing words...' : `Import ${deck.word_count} Words`}
-                </button>
-              </div>
-            ))}
+        /* Empty State */
+        <div className="border border-gray-100 p-16 text-center my-8 bg-neutral-50/30">
+          <p className="font-editorial text-3xl text-black font-normal mb-3">Your library is empty.</p>
+          <p className="text-gray-500 text-xs max-w-md mx-auto mb-8 leading-relaxed">
+            Begin by adding words individually above, or explore standardized reference corpora in the OWN section.
+          </p>
+          <div className="flex justify-center items-center gap-4">
+            <Link 
+              to="/progress?tab=corpora" 
+              className="text-xs uppercase tracking-wider font-medium text-black border border-black hover:bg-black hover:text-white px-5 py-2.5 transition-colors"
+            >
+              Browse Curated Corpora →
+            </Link>
+            <button 
+              onClick={() => setIsAddModalOpen(true)}
+              className="text-xs uppercase tracking-wider font-medium text-white bg-black hover:bg-neutral-800 px-5 py-2.5 transition-colors"
+            >
+              + Add Word
+            </button>
           </div>
         </div>
       ) : filteredWords.length === 0 ? (
