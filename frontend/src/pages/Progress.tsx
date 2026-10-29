@@ -66,6 +66,13 @@ export default function Progress() {
     }
   };
 
+  const handleClearLocalData = () => {
+    if (window.confirm('Are you sure you want to clear your local storage and reset learning settings?')) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
   if (loading) {
     return (
       <div className="animate-enter">
@@ -200,9 +207,17 @@ export default function Progress() {
               Your vocabulary and AI practice history are safely stored on your local machine.
             </p>
           </div>
-          <span className="text-xs uppercase tracking-widest text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded">
-            Local Mode Active
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-xs uppercase tracking-widest text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded">
+              Local Mode Active
+            </span>
+            <button
+              onClick={handleClearLocalData}
+              className="text-xs uppercase tracking-wide text-gray-400 hover:text-red-600 transition-colors border border-gray-200 hover:border-red-300 px-3 py-1.5 rounded"
+            >
+              Clear Local Data
+            </button>
+          </div>
         </div>
       </div>
     </div>
