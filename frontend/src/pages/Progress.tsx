@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Nav from '../components/Nav';
 import { api } from '../lib/api';
 
@@ -26,7 +25,6 @@ interface WordStats {
 }
 
 export default function Progress() {
-  const navigate = useNavigate();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [sessionStats, setSessionStats] = useState<SessionStats | null>(null);
   const [wordStats, setWordStats] = useState<WordStats | null>(null);
@@ -40,6 +38,10 @@ export default function Progress() {
           api.get('/sessions/stats'),
           api.get('/words/stats'),
         ]);
+        const savedStrictness = localStorage.getItem('grading_strictness') as Strictness | null;
+        if (savedStrictness && me) {
+          me.grading_strictness = savedStrictness;
+        }
         setUser(me);
         setSessionStats(sessions);
         setWordStats(words);
@@ -54,20 +56,14 @@ export default function Progress() {
 
   const handleStrictnessChange = async (value: Strictness) => {
     if (!user) return;
-    // Optimistic update
+    // Optimistic update & persist in localStorage
+    localStorage.setItem('grading_strictness', value);
     setUser({ ...user, grading_strictness: value });
     try {
       await api.patch('/auth/me', { grading_strictness: value });
     } catch (e) {
-      // Revert on failure
-      setUser(user);
-      console.error('Failed to update strictness:', e);
+      console.error('Failed to sync strictness to backend:', e);
     }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
   };
 
   if (loading) {
@@ -194,19 +190,19 @@ export default function Progress() {
         </p>
       </div>
 
-      {/* Account */}
+      {/* Storage & Profile */}
       <div className="mb-20">
-        <div className="text-xs uppercase tracking-wide text-gray-400 mb-8">Account</div>
-        <div className="flex items-center justify-between">
+        <div className="text-xs uppercase tracking-wide text-gray-400 mb-8">Storage & Mode</div>
+        <div className="flex items-center justify-between border-t border-gray-100 pt-6">
           <div>
-            <div className="font-editorial text-2xl text-black">{user?.username}</div>
+            <div className="font-editorial text-2xl text-black">Local-First Storage</div>
+            <p className="text-gray-400 text-sm mt-1">
+              Your vocabulary and AI practice history are safely stored on your local machine.
+            </p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-xs uppercase tracking-wide text-gray-400 hover:text-black transition-colors"
-          >
-            Log Out
-          </button>
+          <span className="text-xs uppercase tracking-widest text-emerald-600 font-semibold bg-emerald-50 px-3 py-1.5 rounded">
+            Local Mode Active
+          </span>
         </div>
       </div>
     </div>

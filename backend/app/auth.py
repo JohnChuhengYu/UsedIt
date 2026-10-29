@@ -49,26 +49,30 @@ def get_current_user(
     token: str | None = Depends(oauth2_scheme),
     session: Session = Depends(get_session),
 ) -> User:
-    """Return the current user from a valid JWT token.
-    Raises 401 if the token is missing or invalid."""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    """Return the authenticated user from JWT token, or default to the local user.
+    Enables seamless, zero-friction local operation without requiring a login wall.
+    """
+    if token and SECRET_KEY:
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+            if user_id:
+                user = session.get(User, int(user_id))
+                if user:
+                    return user
+        except Exception:
+            pass
 
-    if token is None:
-        raise credentials_exception
-
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("sub")
-        if user_id is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-
-    user = session.get(User, int(user_id))
-    if user is None:
-        raise credentials_exception
-    return user
+    # Default to single-tenant local learner for instant offline usage
+    local_user = session.get(User, 1)
+    if not local_user:
+        local_user = User(
+            id=1,
+            username="local_learner",
+            password_hash="",
+            grading_strictness="Normal",
+        )
+        session.add(local_user)
+        session.commit()
+        session.refresh(local_user)
+    return local_user

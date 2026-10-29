@@ -25,12 +25,6 @@ async function apiFetch(path: string, options: RequestInit = {}) {
     headers,
   });
 
-  if (response.status === 401) {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
-    throw new ApiError(401, 'Unauthorized');
-  }
-
   if (!response.ok) {
     const errorBody = await response.json().catch(() => ({}));
     throw new ApiError(response.status, errorBody.detail || 'Request failed');

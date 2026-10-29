@@ -1,13 +1,12 @@
-# 环境变量和密钥
+# Environment variables & secrets
 .env
 .env.local
 *.env
 
-# 数据库文件
+# Local SQLite databases
 dev.db
 *.db
 *.sqlite3
-usedit_chroma_db/
 backend/data/*.db
 backend/data/chroma_db/
 
@@ -19,6 +18,7 @@ __pycache__/
 venv/
 .venv/
 env/
+.pytest_cache/
 
 # Node
 node_modules/
@@ -30,6 +30,6 @@ dist/
 .idea/
 .DS_Store
 
-# Data
+# Datasets
 backend/data/raw/
 *.tsv
