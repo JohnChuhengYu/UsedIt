@@ -1,0 +1,93 @@
+{
+  "id": "coca-spoken",
+  "title": "COCA High-Yield Collocations",
+  "subtitle": "Natural Spoken Register & Authentic Idiomatic Stems",
+  "corpus": "Corpus of Contemporary American English (COCA)",
+  "citation": "Mark Davies (2008-). The Corpus of Contemporary American English (COCA): One billion words, 1990-present. Brigham Young University.",
+  "cefr_level": "B2 - C1",
+  "badge": "Linguistic Corpus",
+  "icon": "🎙️",
+  "description": "Drawn directly from COCA's 1-billion-word balanced American corpus. Filtered for high Mutual Information (MI) scores in spoken registers to cultivate authentic, idiomatic communicative competence.",
+  "words": [
+    {
+      "text": "ambiguity",
+      "phonetic": "/ˌæmbɪˈɡjuːəti/",
+      "part_of_speech": "noun",
+      "definition": "The quality of being open to more than one interpretation; inexactness in communication.",
+      "example": "Clear, explicit documentation eliminates ambiguity in distributed software engineering teams.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "cohesion",
+      "phonetic": "/kəʊˈhiːʒn/",
+      "part_of_speech": "noun",
+      "definition": "The action or state of forming a united whole; logical, unified flow in discourse.",
+      "example": "Effective expository writing requires tight paragraph cohesion and clear conceptual transitions.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "counterpart",
+      "phonetic": "/ˈkaʊntəpɑːt/",
+      "part_of_speech": "noun",
+      "definition": "A person or thing holding a corresponding position or function in a different organization.",
+      "example": "The lead product manager met regularly with her engineering counterpart to align sprint goals.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "divergence",
+      "phonetic": "/daɪˈvɜːdʒəns/",
+      "part_of_speech": "noun",
+      "definition": "The process or state of drawing apart or becoming distinctly different in trend or opinion.",
+      "example": "The quarterly financial report highlighted a sharp divergence between revenue and actual operating margins.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "implication",
+      "phonetic": "/ˌɪmplɪˈkeɪʃn/",
+      "part_of_speech": "noun",
+      "definition": "A likely consequence or conclusion that can be drawn although not explicitly stated.",
+      "example": "The decision to migrate to cloud infrastructure carries significant long-term security implications.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "intrinsic",
+      "phonetic": "/ɪnˈtrɪnzɪk/",
+      "part_of_speech": "adjective",
+      "definition": "Belonging naturally; essential to the core constitution of something.",
+      "example": "Autonomous problem-solving is an intrinsic motivator for skilled creative professionals.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "resilience",
+      "phonetic": "/rɪˈzɪliəns/",
+      "part_of_speech": "noun",
+      "definition": "The capacity to recover quickly from difficulties; toughness and adaptability.",
+      "example": "The team demonstrated extraordinary resilience when pivoting the product under tight constraints.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "spontaneous",
+      "phonetic": "/spɒnˈteɪniəs/",
+      "part_of_speech": "adjective",
+      "definition": "Performed or occurring as a result of a sudden natural impulse without premeditation.",
+      "example": "The seminar concluded with a spontaneous round of applause from the attendees.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "subtle",
+      "phonetic": "/ˈsʌtl/",
+      "part_of_speech": "adjective",
+      "definition": "So delicate or understated as to be difficult to perceive, yet carrying significant nuance.",
+      "example": "A subtle shift in vocal intonation completely transformed the meaning of the spoken sentence.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "tangible",
+      "phonetic": "/ˈtændʒəbl/",
+      "part_of_speech": "adjective",
+      "definition": "Perceptible by touch; clear, definite, and concrete rather than purely theoretical.",
+      "example": "The customer onboarding redesign produced tangible improvements in user retention within weeks.",
+      "difficulty": "Medium"
+    }
+  ]
+}

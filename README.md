@@ -84,12 +84,12 @@ Adding a single word triggers automatic enrichment:
 ### 🎨 Minimalist Editorial Design
 Crafted with typographic discipline inspired by classic print editorial design, built with **React 19** and **Tailwind CSS v4** for fluid micro-interactions and distraction-free learning.
 
-### 🎁 Built-in Curated Preset Decks (One-Click Import)
-No blank-slate paralysis. Start practicing immediately with hand-picked, high-yield vocabulary collections complete with native definitions and usage examples:
-* 🎓 **IELTS & TOEFL High-Yield**: High-scoring academic verbs and transition markers (`articulate`, `nuanced`, `substantiate`, `viable`).
-* 💼 **Business & Workplace Fluency**: Executive communication terms for standups, roadmaps, and cross-functional alignment (`streamline`, `leverage`, `bandwidth`, `mitigate`).
-* 📚 **GRE & Academic Distinction**: Deep analytical vocabulary for nuanced philosophical arguments (`ephemeral`, `ubiquitous`, `juxtapose`, `dichotomy`).
-* 🌟 **Everyday Native Expressions**: Culturally rich idioms and conversational phrases for effortless charisma (`serendipity`, `hindsight`, `gut feeling`, `spot on`).
+### 🏛️ Standardized Corpus-Grounded Decks (Peer-Reviewed & Verifiable)
+Never start from scratch or rely on ad-hoc hallucinated wordlists. UsedIt provides verified lexical sets derived from standardized linguistic corpora and academic literature:
+* 🎓 **Coxhead's Academic Word List (AWL)**: High-frequency academic word families identified across 3.5 million running words of peer-reviewed articles (*Averil Coxhead, Victoria University of Wellington*).
+* 🏛️ **Oxford 5000 (CEFR B2-C1)**: Advanced communicative vocabulary selected from Oxford University Press's 2.5-billion-word corpus to bridge the gap between basic adequacy and nuanced fluency.
+* ⚖️ **ETS GRE Analytical Measure**: Essential discriminator headwords from official GRE Verbal Reasoning and Barron's 333, calibrated for dialectic contrast and high-order reasoning.
+* 🎙️ **COCA High-Yield Collocations**: Drawn from the 1-billion-word *Corpus of Contemporary American English* (Mark Davies, BYU), filtered for high Mutual Information (MI) scores in authentic spoken registers.
 
 ---
 

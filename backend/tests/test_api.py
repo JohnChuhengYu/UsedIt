@@ -81,3 +81,37 @@ def test_batch_word_import():
     assert dup_data["imported_count"] == 0
     assert dup_data["skipped_count"] == 2
 
+
+def test_preset_academic_decks():
+    """Verify standard corpus-grounded decks list, detail, and import endpoints."""
+    # 1. List decks
+    response = client.get("/decks")
+    assert response.status_code == 200
+    decks = response.json()
+    assert len(decks) >= 4
+    deck_ids = [d["id"] for d in decks]
+    assert "awl-sublist-1" in deck_ids
+    assert "oxford-5000-c1" in deck_ids
+    assert "gre-analytical" in deck_ids
+    assert "coca-spoken" in deck_ids
+
+    # Verify academic citation and corpus exist
+    awl_summary = next(d for d in decks if d["id"] == "awl-sublist-1")
+    assert "Coxhead" in awl_summary["citation"]
+    assert awl_summary["cefr_level"] == "B2 - C1"
+
+    # 2. Detail
+    res_detail = client.get("/decks/awl-sublist-1")
+    assert res_detail.status_code == 200
+    detail = res_detail.json()
+    assert len(detail["words"]) > 0
+    assert any(w["text"] == "analyze" for w in detail["words"])
+
+    # 3. Import
+    res_import = client.post("/decks/awl-sublist-1/import")
+    assert res_import.status_code == 200
+    import_data = res_import.json()
+    assert import_data["deck_id"] == "awl-sublist-1"
+    assert import_data["total"] > 0
+    assert "analyze" in import_data["added_words"] or import_data["skipped_count"] > 0
+

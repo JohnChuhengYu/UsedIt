@@ -1,0 +1,109 @@
+{
+  "id": "oxford-5000-c1",
+  "title": "Oxford 5000 (CEFR B2-C1)",
+  "subtitle": "Advanced Communicative Fluency & Nuance",
+  "corpus": "Oxford 5000 / Oxford English Corpus",
+  "citation": "Oxford University Press (2019). The Oxford 5000: An expanded core vocabulary for advanced learners of English aligned with CEFR.",
+  "cefr_level": "B2 - C1",
+  "badge": "CEFR Standard",
+  "icon": "🏛️",
+  "description": "Selected from Oxford University Press's 2.5-billion-word English Corpus. These B2-C1 headwords bridge the gap between basic communicative adequacy and articulate, nuanced expression.",
+  "words": [
+    {
+      "text": "advocate",
+      "phonetic": "/ˈædvəkeɪt/",
+      "part_of_speech": "verb",
+      "definition": "To publicly recommend or support a particular cause, policy, or action.",
+      "example": "Public health experts advocate for stricter limits on industrial carbon emissions.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "comprehensive",
+      "phonetic": "/ˌkɒmprɪˈhensɪv/",
+      "part_of_speech": "adjective",
+      "definition": "Including or dealing with all or nearly all elements or aspects of something.",
+      "example": "The committee published a comprehensive survey analyzing graduate employment trends.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "differentiate",
+      "phonetic": "/ˌdɪfəˈrenʃieɪt/",
+      "part_of_speech": "verb",
+      "definition": "To recognize or ascertain what makes someone or something distinct.",
+      "example": "Startups must differentiate their offerings in an increasingly saturated software market.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "facilitate",
+      "phonetic": "/fəˈsɪlɪteɪt/",
+      "part_of_speech": "verb",
+      "definition": "To make an action or process easy, smoother, or more efficient.",
+      "example": "Modern digital platforms facilitate cross-functional collaboration across disparate time zones.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "hierarchy",
+      "phonetic": "/ˈhaɪərɑːki/",
+      "part_of_speech": "noun",
+      "definition": "A system in which members of an organization or society are ranked according to relative status.",
+      "example": "The executive team flattened the corporate hierarchy to accelerate operational decision-making.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "implement",
+      "phonetic": "/ˈɪmplɪment/",
+      "part_of_speech": "verb",
+      "definition": "To put a decision, plan, or agreement into practical effect.",
+      "example": "The municipal council voted to implement new municipal water conservation guidelines.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "incentive",
+      "phonetic": "/ɪnˈsentɪv/",
+      "part_of_speech": "noun",
+      "definition": "A thing that motivates, stimulates, or encourages someone to take action.",
+      "example": "Targeted tax incentives encourage commercial enterprises to adopt renewable energy.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "integrate",
+      "phonetic": "/ˈɪntɪɡreɪt/",
+      "part_of_speech": "verb",
+      "definition": "To combine one thing with another so that they become a functional whole.",
+      "example": "The engineering curriculum integrates computational simulations with empirical lab experiments.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "manifest",
+      "phonetic": "/ˈmænɪfest/",
+      "part_of_speech": "verb",
+      "definition": "To demonstrate or display a quality, feeling, or condition clearly by actions or symptoms.",
+      "example": "Chronic occupational stress can manifest through physical fatigue and reduced concentration.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "phenomenon",
+      "phonetic": "/fəˈnɒmɪnən/",
+      "part_of_speech": "noun",
+      "definition": "A remarkable fact or situation that is observed to exist, especially one whose cause is investigated.",
+      "example": "Bioluminescence in deep-sea organisms remains an extraordinary biological phenomenon.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "reinforce",
+      "phonetic": "/ˌriːɪnˈfɔːs/",
+      "part_of_speech": "verb",
+      "definition": "To strengthen or support an object, concept, or argument with additional evidence.",
+      "example": "Subsequent peer-reviewed studies reinforce the original conclusions of the climate model.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "sustainable",
+      "phonetic": "/səˈsteɪnəbl/",
+      "part_of_speech": "adjective",
+      "definition": "Able to be maintained at a steady rate or level without depleting natural resources.",
+      "example": "City planners released an ambitious framework for sustainable public transit expansion.",
+      "difficulty": "Medium"
+    }
+  ]
+}

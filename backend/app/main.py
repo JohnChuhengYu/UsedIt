@@ -8,7 +8,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import create_db_and_tables
-from app.routers import sessions, words, practice, auth
+from app.routers import sessions, words, practice, auth, decks
 
 
 @asynccontextmanager
@@ -51,6 +51,7 @@ app.add_middleware(
 # ── Routers ────────────────────────────────────────────────────────
 app.include_router(auth.router)
 app.include_router(words.router)
+app.include_router(decks.router)
 app.include_router(sessions.router)
 app.include_router(practice.router)
 

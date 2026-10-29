@@ -1,0 +1,109 @@
+{
+  "id": "awl-sublist-1",
+  "title": "Coxhead Academic Word List (AWL)",
+  "subtitle": "Sublist 1: Core Cross-Disciplinary Academic Lexicon",
+  "corpus": "Coxhead Academic Word List",
+  "citation": "Averil Coxhead (2000), Victoria University of Wellington. 'A New Academic Word List', TESOL Quarterly, 34(2), 213-238.",
+  "cefr_level": "B2 - C1",
+  "badge": "Academic English",
+  "icon": "🎓",
+  "description": "The gold standard for academic English. Sublist 1 contains the highest-frequency academic word families identified across 3.5 million running words of peer-reviewed articles spanning Science, Law, Commerce, and Arts.",
+  "words": [
+    {
+      "text": "analyze",
+      "phonetic": "/ˈænəlaɪz/",
+      "part_of_speech": "verb",
+      "definition": "To examine methodically and in detail the constitution or structure of something.",
+      "example": "Researchers must analyze the experimental variance across clinical trials.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "approach",
+      "phonetic": "/əˈprəʊtʃ/",
+      "part_of_speech": "noun",
+      "definition": "A way of dealing with a situation or problem.",
+      "example": "The committee adopted a multidisciplinary approach to solve urban traffic congestion.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "assess",
+      "phonetic": "/əˈses/",
+      "part_of_speech": "verb",
+      "definition": "To evaluate or estimate the nature, ability, or quality of something.",
+      "example": "Standardized metrics were implemented to assess student reading proficiency.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "assume",
+      "phonetic": "/əˈsjuːm/",
+      "part_of_speech": "verb",
+      "definition": "To suppose to be the case without proof.",
+      "example": "Economists often assume consumers make rational decisions under market constraints.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "authority",
+      "phonetic": "/ɔːˈθɒrəti/",
+      "part_of_speech": "noun",
+      "definition": "The power or right to give orders, make decisions, and enforce obedience.",
+      "example": "The federal regulatory authority approved the new environmental guidelines.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "constitute",
+      "phonetic": "/ˈkɒnstɪtjuːt/",
+      "part_of_speech": "verb",
+      "definition": "To be a part of a whole; to combine to form an entirety.",
+      "example": "Single-parent households constitute a growing proportion of the population.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "context",
+      "phonetic": "/ˈkɒntekst/",
+      "part_of_speech": "noun",
+      "definition": "The circumstances that form the setting for an event, statement, or idea.",
+      "example": "Quotations should always be evaluated within their historical context.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "derive",
+      "phonetic": "/dɪˈraɪv/",
+      "part_of_speech": "verb",
+      "definition": "To obtain something from a specified source or origin.",
+      "example": "Many modern English terms derive from classical Greek and Latin roots.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "indicate",
+      "phonetic": "/ˈɪndɪkeɪt/",
+      "part_of_speech": "verb",
+      "definition": "To point out or show evidence of something.",
+      "example": "Initial quarterly reports indicate a steady rebound in retail consumer spending.",
+      "difficulty": "Easy"
+    },
+    {
+      "text": "interpret",
+      "phonetic": "/ɪnˈtɜːprɪt/",
+      "part_of_speech": "verb",
+      "definition": "To explain the meaning of information, words, or actions.",
+      "example": "Historians continue to interpret the archival documents in contrasting ways.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "proceed",
+      "phonetic": "/prəˈsiːd/",
+      "part_of_speech": "verb",
+      "definition": "To move forward or carry on an action according to plan.",
+      "example": "The engineering team will proceed with aerodynamic testing once safety clearances are granted.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "significant",
+      "phonetic": "/sɪɡˈnɪfɪkənt/",
+      "part_of_speech": "adjective",
+      "definition": "Sufficiently great or important to be worthy of attention; statistically noteworthy.",
+      "example": "The randomized trial demonstrated a statistically significant reduction in symptoms.",
+      "difficulty": "Medium"
+    }
+  ]
+}

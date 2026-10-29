@@ -1,0 +1,109 @@
+{
+  "id": "gre-analytical",
+  "title": "ETS GRE Analytical Core",
+  "subtitle": "High-Yield Verbal Reasoning & Critical Contrast",
+  "corpus": "ETS GRE Verbal Measure & Barron's 333",
+  "citation": "Educational Testing Service (ETS). Official GRE Verbal Reasoning Practice & Standard Academic Vocabulary.",
+  "cefr_level": "C1 - C2",
+  "badge": "Standardized Test",
+  "icon": "⚖️",
+  "description": "Essential lexical discrimination words from the official GRE Verbal Reasoning corpus. Calibrated specifically for high-level textual inference, dialectic reasoning, and logical opposition.",
+  "words": [
+    {
+      "text": "anomaly",
+      "phonetic": "/əˈnɒməli/",
+      "part_of_speech": "noun",
+      "definition": "Something that deviates from what is standard, normal, or expected.",
+      "example": "Astrophysicists identified an unusual spectral anomaly near the outer perimeter of the nebula.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "audacious",
+      "phonetic": "/ɔːˈdeɪʃəs/",
+      "part_of_speech": "adjective",
+      "definition": "Showing a willingness to take surprisingly bold, unconventional risks.",
+      "example": "The young entrepreneur launched an audacious campaign challenging the dominant tech monopoly.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "corroborate",
+      "phonetic": "/kəˈrɒbəreɪt/",
+      "part_of_speech": "verb",
+      "definition": "To confirm or give substantial support to a statement, theory, or finding with evidence.",
+      "example": "Forensic auditors found multiple independent receipts that corroborate the witness testimony.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "disparate",
+      "phonetic": "/ˈdɪspərət/",
+      "part_of_speech": "adjective",
+      "definition": "Essentially different in kind; not allowing comparison.",
+      "example": "The symposium brought together scholars with disparate viewpoints across anthropology and computer science.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "ephemeral",
+      "phonetic": "/ɪˈfemərəl/",
+      "part_of_speech": "adjective",
+      "definition": "Lasting for a remarkably brief or fleeting period of time; transitory.",
+      "example": "Viral internet fame is notoriously ephemeral, often fading within a matter of days.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "equivocal",
+      "phonetic": "/ɪˈkwɪvəkl/",
+      "part_of_speech": "adjective",
+      "definition": "Open to more than one interpretation; intentionally ambiguous or inconclusive.",
+      "example": "The spokesperson offered an equivocal answer that sidestepped the regulatory inquiry.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "laconic",
+      "phonetic": "/ləˈkɒnɪk/",
+      "part_of_speech": "adjective",
+      "definition": "Using very few words in speech or prose; concise to the point of curtness.",
+      "example": "Known for his laconic style, the senior engineer replied to the lengthy email with a single word.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "mitigate",
+      "phonetic": "/ˈmɪtɪɡeɪt/",
+      "part_of_speech": "verb",
+      "definition": "To make something bad, dangerous, or painful less severe, hazardous, or intense.",
+      "example": "Redundant server clusters were configured to mitigate the risk of catastrophic database outages.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "paradox",
+      "phonetic": "/ˈpærədɒks/",
+      "part_of_speech": "noun",
+      "definition": "A seemingly absurd or self-contradictory statement that on investigation reveals a deeper truth.",
+      "example": "The paradox of modern productivity software is that it can create more overhead than it eliminates.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "pragmatic",
+      "phonetic": "/præɡˈmætɪk/",
+      "part_of_speech": "adjective",
+      "definition": "Dealing with circumstances sensibly and realistically based on practical rather than theoretical rules.",
+      "example": "She championed a pragmatic roadmap prioritizing core usability over experimental features.",
+      "difficulty": "Medium"
+    },
+    {
+      "text": "reticent",
+      "phonetic": "/ˈretɪsnt/",
+      "part_of_speech": "adjective",
+      "definition": "Not revealing one's thoughts, opinions, or feelings readily; reserved.",
+      "example": "The lead researcher was reticent about premature conclusions before replication completed.",
+      "difficulty": "Hard"
+    },
+    {
+      "text": "vacillate",
+      "phonetic": "/ˈvæsɪleɪt/",
+      "part_of_speech": "verb",
+      "definition": "To waver or alternate between different opinions or actions; be indecisive.",
+      "example": "Investors continued to vacillate between optimism and caution throughout the volatile trading week.",
+      "difficulty": "Hard"
+    }
+  ]
+}

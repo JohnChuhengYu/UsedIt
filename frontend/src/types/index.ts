@@ -36,3 +36,30 @@ export interface Judgment {
   naturalness_rating?: string;
   word_status: string;
 }
+
+export interface DeckWordItem {
+  text: string;
+  phonetic?: string;
+  part_of_speech?: string;
+  definition: string;
+  example: string;
+  difficulty?: string;
+}
+
+export interface DeckSummary {
+  id: string;
+  title: string;
+  subtitle: string;
+  corpus: string;
+  citation: string;
+  cefr_level: string;
+  badge: string;
+  icon: string;
+  description: string;
+  word_count: number;
+  words_preview: string[];
+}
+
+export interface DeckDetail extends DeckSummary {
+  words: DeckWordItem[];
+}
