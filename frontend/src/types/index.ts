@@ -54,7 +54,7 @@ export interface DeckSummary {
   citation: string;
   cefr_level: string;
   badge: string;
-  icon: string;
+  code: string;
   description: string;
   word_count: number;
   words_preview: string[];

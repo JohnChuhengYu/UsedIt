@@ -6,7 +6,7 @@
   "citation": "Mark Davies (2008-). The Corpus of Contemporary American English (COCA): One billion words, 1990-present. Brigham Young University.",
   "cefr_level": "B2 - C1",
   "badge": "Linguistic Corpus",
-  "icon": "🎙️",
+  "code": "COCA",
   "description": "Drawn directly from COCA's 1-billion-word balanced American corpus. Filtered for high Mutual Information (MI) scores in spoken registers to cultivate authentic, idiomatic communicative competence.",
   "words": [
     {

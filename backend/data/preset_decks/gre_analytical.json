@@ -6,7 +6,7 @@
   "citation": "Educational Testing Service (ETS). Official GRE Verbal Reasoning Practice & Standard Academic Vocabulary.",
   "cefr_level": "C1 - C2",
   "badge": "Standardized Test",
-  "icon": "⚖️",
+  "code": "GRE",
   "description": "Essential lexical discrimination words from the official GRE Verbal Reasoning corpus. Calibrated specifically for high-level textual inference, dialectic reasoning, and logical opposition.",
   "words": [
     {

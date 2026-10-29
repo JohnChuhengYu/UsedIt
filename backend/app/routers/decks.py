@@ -38,7 +38,7 @@ class DeckSummary(SQLModel):
     citation: str
     cefr_level: str
     badge: str
-    icon: str
+    code: str
     description: str
     word_count: int
     words_preview: list[str]
@@ -52,7 +52,7 @@ class DeckDetail(SQLModel):
     citation: str
     cefr_level: str
     badge: str
-    icon: str
+    code: str
     description: str
     word_count: int
     words: list[DeckWordItem]
@@ -105,7 +105,7 @@ def list_decks():
                 citation=d.get("citation", ""),
                 cefr_level=d.get("cefr_level", "B2-C1"),
                 badge=d.get("badge", "Academic"),
-                icon=d.get("icon", "📚"),
+                code=d.get("code", "LEX"),
                 description=d.get("description", ""),
                 word_count=len(words),
                 words_preview=[w["text"] for w in words[:6]],
@@ -131,7 +131,7 @@ def get_deck_detail(deck_id: str):
         citation=deck.get("citation", ""),
         cefr_level=deck.get("cefr_level", "B2-C1"),
         badge=deck.get("badge", "Academic"),
-        icon=deck.get("icon", "📚"),
+        code=deck.get("code", "LEX"),
         description=deck.get("description", ""),
         word_count=len(words),
         words=[DeckWordItem(**w) for w in words],
