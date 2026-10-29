@@ -446,8 +446,8 @@ def judge_sentence(
         .limit(3)
     ).all()
 
-    consecutive_passed = [s.passed for s in recent] 
-    if len(consecutive_passed) >= 4 and all(consecutive_passed[:4]):
+    consecutive_passed = [s.passed for s in recent]
+    if len(consecutive_passed) >= 3 and all(consecutive_passed[:3]):
         user_word.status = "MASTERED"
         session.add(user_word)
         session.commit()

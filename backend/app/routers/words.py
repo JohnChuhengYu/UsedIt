@@ -224,7 +224,14 @@ def create_word(
     session.commit()
     session.refresh(user_word)
 
-    return {"id": user_word.id, "text": dictionary_entry.text, "status": user_word.status}
+    return {
+        "id": user_word.id,
+        "text": dictionary_entry.text,
+        "definition": dictionary_entry.definition,
+        "example": dictionary_entry.example,
+        "status": user_word.status,
+        "created_at": user_word.created_at.isoformat(),
+    }
 
 
 @router.post("/batch", response_model=WordBatchResponse)

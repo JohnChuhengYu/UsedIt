@@ -111,8 +111,12 @@ export default function Progress() {
     setImportingDeckId(deckId);
     try {
       const res = await api.post(`/decks/${deckId}/import`);
-      const updatedWordsStats = await api.get('/words/stats');
+      const [updatedWordsStats, updatedSessionStats] = await Promise.all([
+        api.get('/words/stats'),
+        api.get('/sessions/stats'),
+      ]);
       setWordStats(updatedWordsStats);
+      setSessionStats(updatedSessionStats);
       
       const skippedMsg = res.skipped_count > 0 ? ` (${res.skipped_count} ALREADY PRESENT)` : '';
       setToastMessage(`IMPORTED ${res.imported_count} WORDS FROM "${res.title.toUpperCase()}"${skippedMsg}`);
@@ -137,8 +141,12 @@ export default function Progress() {
     );
   }
 
-  const mastery = wordStats && wordStats.total > 0
+  const masteredPercent = wordStats && wordStats.total > 0
     ? Math.round((wordStats.mastered / wordStats.total) * 1000) / 10
+    : 0;
+
+  const practicingPercent = wordStats && wordStats.total > 0
+    ? Math.round((wordStats.practicing / wordStats.total) * 1000) / 10
     : 0;
 
   return (
@@ -172,16 +180,27 @@ export default function Progress() {
         
         <div>
           <div className="flex justify-between text-xs uppercase tracking-wide mb-4">
-            <span className="text-gray-400">Mastery Progress</span>
-            <span className="text-[#EC4899]">{mastery}%</span>
+            <span className="text-gray-400">Mastery & Learning Progress</span>
+            <span className="font-mono text-black font-medium text-xs">
+              <span className="text-[#EC4899] font-bold">{masteredPercent}%</span> Mastered
+              {practicingPercent > 0 && (
+                <span className="text-gray-400 ml-2">· {practicingPercent}% Practicing</span>
+              )}
+            </span>
           </div>
-          <div className="w-full bg-gray-100 h-1.5 mb-4 overflow-hidden">
+          <div className="w-full bg-gray-100 h-2 mb-4 overflow-hidden flex">
             <div
               className="bg-[#EC4899] h-full transition-all duration-500"
-              style={{ width: `${mastery}%` }}
+              style={{ width: `${masteredPercent}%` }}
+              title={`Mastered: ${wordStats?.mastered ?? 0} (${masteredPercent}%)`}
+            />
+            <div
+              className="bg-[#EC4899]/30 h-full transition-all duration-500"
+              style={{ width: `${practicingPercent}%` }}
+              title={`In Practice: ${wordStats?.practicing ?? 0} (${practicingPercent}%)`}
             />
           </div>
-          <div className="flex justify-between text-base text-gray-500">
+          <div className="flex justify-between text-xs text-gray-500 font-mono">
             <span>{sessionStats?.accuracy ?? 0}% Accuracy</span>
             <span>{sessionStats?.passed_sessions ?? 0} Sessions passed</span>
           </div>
