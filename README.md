@@ -84,6 +84,13 @@ Adding a single word triggers automatic enrichment:
 ### 🎨 Minimalist Editorial Design
 Crafted with typographic discipline inspired by classic print editorial design, built with **React 19** and **Tailwind CSS v4** for fluid micro-interactions and distraction-free learning.
 
+### 🎁 Built-in Curated Preset Decks (One-Click Import)
+No blank-slate paralysis. Start practicing immediately with hand-picked, high-yield vocabulary collections complete with native definitions and usage examples:
+* 🎓 **IELTS & TOEFL High-Yield**: High-scoring academic verbs and transition markers (`articulate`, `nuanced`, `substantiate`, `viable`).
+* 💼 **Business & Workplace Fluency**: Executive communication terms for standups, roadmaps, and cross-functional alignment (`streamline`, `leverage`, `bandwidth`, `mitigate`).
+* 📚 **GRE & Academic Distinction**: Deep analytical vocabulary for nuanced philosophical arguments (`ephemeral`, `ubiquitous`, `juxtapose`, `dichotomy`).
+* 🌟 **Everyday Native Expressions**: Culturally rich idioms and conversational phrases for effortless charisma (`serendipity`, `hindsight`, `gut feeling`, `spot on`).
+
 ---
 
 ## 🥊 Comparison: How UsedIt Stands Out
@@ -189,14 +196,33 @@ Instead of duplicating dictionary entries per user, UsedIt isolates learning pro
 
 ## 🚀 Quick Start Guide
 
-### Prerequisites
-1. **Python 3.10+**
-2. **Node.js 18+** & **npm**
-3. **[Ollama](https://ollama.com/)** installed on your system
+### ⚡ One-Click Instant Launch (Recommended)
+
+Run a single command from the root directory to verify Ollama, automatically set up the Python venv & Node packages, start both servers, and launch your browser:
+
+```bash
+# On macOS / Linux:
+chmod +x start.sh && ./start.sh
+
+# On Windows:
+start.bat
+```
+> The script will launch FastAPI (`:8000`), Vite dev server (`:5173`), open your browser, and gracefully terminate all child processes on `Ctrl+C`.
 
 ---
 
-### Step 1: Start the Local LLM (Ollama)
+### 🛠️ Manual Step-by-Step Setup
+
+If you prefer running services independently:
+
+#### Prerequisites
+1. **Python 3.10+**
+2. **Node.js 18+** & **npm**
+3. **[Ollama](https://ollama.com/)** installed on your system (optional but recommended for local AI)
+
+---
+
+#### Step 1: Start the Local LLM (Ollama)
 
 Open your terminal and load the default Llama 3.1 8B model:
 ```bash
@@ -206,7 +232,7 @@ ollama run llama3.1:8b
 
 ---
 
-### Step 2: Set Up and Start the Backend
+#### Step 2: Set Up and Start the Backend
 
 Open a new terminal window:
 

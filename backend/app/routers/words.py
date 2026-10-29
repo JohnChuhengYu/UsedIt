@@ -64,6 +64,26 @@ class WordCreate(SQLModel):
     text: str
 
 
+class BatchWordItem(SQLModel):
+    text: str
+    definition: str | None = None
+    example: str | None = None
+    phonetic: str | None = None
+    part_of_speech: str | None = None
+    difficulty: str | None = None
+
+
+class WordBatchCreate(SQLModel):
+    words: list[str | BatchWordItem]
+
+
+class WordBatchResponse(SQLModel):
+    imported_count: int
+    skipped_count: int
+    total: int
+    added_words: list[str]
+
+
 # ── Helper: enrichment logic, unchanged from before ──────────────
 
 DIFFICULTY_DB = {
@@ -205,6 +225,79 @@ def create_word(
     session.refresh(user_word)
 
     return {"id": user_word.id, "text": dictionary_entry.text, "status": user_word.status}
+
+
+@router.post("/batch", response_model=WordBatchResponse)
+def batch_create_words(
+    body: WordBatchCreate,
+    session: Session = Depends(get_session),
+    current_user: User = Depends(get_current_user)
+):
+    """POST /words/batch — 批量导入预设或自定义单词列表，自动去重并跳过已添加的词"""
+    imported_count = 0
+    skipped_count = 0
+    added_words: list[str] = []
+    seen_texts: set[str] = set()
+
+    for item in body.words:
+        if isinstance(item, str):
+            text = item.lower().strip()
+            def_text = ""
+            ex_text = ""
+            phonetic = None
+            pos = None
+            diff = None
+        else:
+            text = item.text.lower().strip()
+            def_text = item.definition or ""
+            ex_text = item.example or ""
+            phonetic = item.phonetic
+            pos = item.part_of_speech
+            diff = item.difficulty
+
+        if not text or text in seen_texts:
+            continue
+        seen_texts.add(text)
+
+        dict_entry = session.exec(select(Dictionary).where(Dictionary.text == text)).first()
+        if not dict_entry:
+            dict_entry = Dictionary(
+                text=text,
+                definition=def_text,
+                example=ex_text,
+                phonetic=phonetic,
+                part_of_speech=pos,
+                difficulty=diff or "Medium",
+                is_enriched=bool(def_text)
+            )
+            session.add(dict_entry)
+            session.commit()
+            session.refresh(dict_entry)
+            if not def_text:
+                _enrich_dictionary_entry(dict_entry, session)
+
+        existing_user_word = session.exec(
+            select(UserWord).where(
+                UserWord.user_id == current_user.id,
+                UserWord.dictionary_id == dict_entry.id
+            )
+        ).first()
+
+        if existing_user_word:
+            skipped_count += 1
+        else:
+            uw = UserWord(user_id=current_user.id, dictionary_id=dict_entry.id, status="NEW")
+            session.add(uw)
+            added_words.append(text)
+            imported_count += 1
+
+    session.commit()
+    return WordBatchResponse(
+        imported_count=imported_count,
+        skipped_count=skipped_count,
+        total=len(seen_texts),
+        added_words=added_words
+    )
 
 
 @router.get("/stats")

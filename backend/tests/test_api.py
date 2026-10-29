@@ -45,3 +45,39 @@ def test_sessions_stats():
     assert "passed_sessions" in data
     assert "accuracy" in data
 
+
+def test_batch_word_import():
+    """Verify batch word import functionality with deduplication."""
+    import uuid
+    unique_suffix = uuid.uuid4().hex[:6]
+    word1 = f"testword_a_{unique_suffix}"
+    word2 = f"testword_b_{unique_suffix}"
+
+    payload = {
+        "words": [
+            {
+                "text": word1,
+                "definition": "Definition for test word A",
+                "example": "This is an example sentence for test word A."
+            },
+            {
+                "text": word2,
+                "definition": "Definition for test word B",
+                "example": "This is an example sentence for test word B."
+            }
+        ]
+    }
+    response = client.post("/words/batch", json=payload)
+    assert response.status_code == 200
+    res_data = response.json()
+    assert res_data["imported_count"] == 2
+    assert res_data["skipped_count"] == 0
+    assert word1 in res_data["added_words"]
+
+    # Re-importing same batch should skip all without failing
+    response_dup = client.post("/words/batch", json=payload)
+    assert response_dup.status_code == 200
+    dup_data = response_dup.json()
+    assert dup_data["imported_count"] == 0
+    assert dup_data["skipped_count"] == 2
+
