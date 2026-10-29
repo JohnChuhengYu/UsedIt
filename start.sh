@@ -73,7 +73,7 @@ if ! python -c "import uvicorn, fastapi, sqlmodel, chromadb" >/dev/null 2>&1; th
 fi
 
 echo -e "  ${GREEN}✓${RESET} Launching FastAPI backend on http://localhost:8000..."
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload >/dev/null 2>&1 &
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload > "$ROOT_DIR/backend.log" 2>&1 &
 BACKEND_PID=$!
 
 # ── 3. Setup & Start Frontend ─────────────────────────────────────────────────
@@ -91,7 +91,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 echo -e "  ${GREEN}✓${RESET} Launching Vite dev server on http://localhost:5173..."
-npm run dev >/dev/null 2>&1 &
+npm run dev > "$ROOT_DIR/frontend.log" 2>&1 &
 FRONTEND_PID=$!
 
 # ── 4. Open Browser & Monitor ─────────────────────────────────────────────────
@@ -122,6 +122,7 @@ cleanup() {
     if [ -n "$FRONTEND_PID" ]; then
         kill "$FRONTEND_PID" 2>/dev/null || true
     fi
+    rm -f "$ROOT_DIR/backend.log" "$ROOT_DIR/frontend.log"
     echo -e "${GREEN}All services stopped cleanly. Goodbye! 👋${RESET}"
     exit 0
 }

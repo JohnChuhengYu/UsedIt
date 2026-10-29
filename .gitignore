@@ -26,6 +26,7 @@ dist/
 .vite/
 
 # IDE & OS
+*.log
 .vscode/
 .idea/
 .DS_Store
