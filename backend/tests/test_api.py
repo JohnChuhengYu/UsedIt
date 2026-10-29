@@ -4,8 +4,27 @@ Validates core endpoints, database initialization, and local-first fallback.
 """
 
 from fastapi.testclient import TestClient
+from sqlmodel import SQLModel, Session, create_engine
+from sqlmodel.pool import StaticPool
+
+from app.database import get_session
 from app.main import app
 
+# Use an isolated, ephemeral in-memory SQLite database for testing so dev.db is never polluted
+test_engine = create_engine(
+    "sqlite://",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+SQLModel.metadata.create_all(test_engine)
+
+
+def get_test_session():
+    with Session(test_engine) as session:
+        yield session
+
+
+app.dependency_overrides[get_session] = get_test_session
 client = TestClient(app)
 
 
