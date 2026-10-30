@@ -134,3 +134,19 @@ def test_preset_academic_decks():
     assert import_data["total"] > 0
     assert "analyze" in import_data["added_words"] or import_data["skipped_count"] > 0
 
+
+def test_words_list_and_search():
+    """Verify listing words with default high-limit and server-side search filtering."""
+    # List words defaults to limit=1000
+    res = client.get("/words")
+    assert res.status_code == 200
+    words = res.json()
+    assert isinstance(words, list)
+
+    # Search for imported word 'analyze'
+    res_search = client.get("/words?search=analy")
+    assert res_search.status_code == 200
+    search_words = res_search.json()
+    assert any("analy" in w["text"].lower() for w in search_words)
+
+

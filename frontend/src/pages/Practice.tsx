@@ -13,15 +13,9 @@ export default function Practice() {
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Infinite scroll state
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-
-  const fetchWords = async (tabStatus: string | null, pageNum: number) => {
-    const skip = pageNum * 20;
+  const fetchWords = async (tabStatus: string | null) => {
     const statusParam = tabStatus ? `&status=${tabStatus}` : '';
-    const data = await api.get(`/words?skip=${skip}&limit=20${statusParam}`);
+    const data = await api.get(`/words?limit=1000${statusParam}`);
     return data;
   };
 
@@ -29,14 +23,11 @@ export default function Practice() {
     async function init() {
       try {
         const [wordsData, statsData] = await Promise.all([
-          fetchWords(null, 0),
+          fetchWords(null),
           api.get('/words/stats')
         ]);
         setWords(wordsData);
         setStats(statsData);
-        if (wordsData.length < 20) {
-          setHasMore(false);
-        }
       } catch (e) {
         console.error('Failed to initialize:', e);
       } finally {
@@ -48,55 +39,17 @@ export default function Practice() {
 
   const handleTabChange = async (newStatus: string | null) => {
     setActiveTab(newStatus);
-    setPage(0);
-    setHasMore(true);
     setLoading(true);
     window.scrollTo(0, 0);
     try {
-      const data = await fetchWords(newStatus, 0);
+      const data = await fetchWords(newStatus);
       setWords(data);
-      if (data.length < 20) setHasMore(false);
     } catch (e) {
       console.error('Failed to switch tab:', e);
     } finally {
       setLoading(false);
     }
   };
-
-  const loadMoreWords = async () => {
-    setLoadingMore(true);
-    const nextPage = page + 1;
-    try {
-      const newWords = await fetchWords(activeTab, nextPage);
-      if (newWords.length === 0) {
-        setHasMore(false);
-      } else {
-        setWords(prev => [...prev, ...newWords]);
-        setPage(nextPage);
-        if (newWords.length < 20) {
-          setHasMore(false);
-        }
-      }
-    } catch (e) {
-      console.error('Failed to load more words:', e);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >= document.documentElement.offsetHeight - 300 &&
-        !loadingMore &&
-        hasMore
-      ) {
-        loadMoreWords();
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [loadingMore, hasMore, page, activeTab]);
 
   const filteredWords = words
     .filter(w => w.text.toLowerCase().includes(searchQuery.toLowerCase()) || 

@@ -8,7 +8,7 @@ import json
 import requests
 import chromadb
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session, select, SQLModel
+from sqlmodel import Session, select, SQLModel, or_
 
 from app.database import get_session
 from app.models import Dictionary, UserWord, PracticeSession, User
@@ -163,12 +163,13 @@ def _enrich_dictionary_entry(entry: Dictionary, session: Session):
 @router.get("", response_model=list[WordListItem])
 def list_words(
     skip: int = 0,
-    limit: int = 20,
+    limit: int = 1000,
     status: str | None = None,
+    search: str | None = None,
     session: Session = Depends(get_session),
     current_user: User = Depends(get_current_user)
 ):
-    """GET /words — 列出当前用户的单词，分页，支持按状态过滤，只返回轻量字段"""
+    """GET /words — 列出当前用户的单词，支持状态与关键词过滤，默认高限额全量直出"""
     statement = (
         select(UserWord, Dictionary)
         .join(Dictionary, UserWord.dictionary_id == Dictionary.id)
@@ -176,6 +177,15 @@ def list_words(
     )
     if status:
         statement = statement.where(UserWord.status == status)
+
+    if search:
+        term = f"%{search.lower().strip()}%"
+        statement = statement.where(
+            or_(
+                Dictionary.text.ilike(term),
+                Dictionary.definition.ilike(term)
+            )
+        )
 
     statement = statement.order_by(UserWord.created_at.desc()).offset(skip).limit(limit)
     results = session.exec(statement).all()
