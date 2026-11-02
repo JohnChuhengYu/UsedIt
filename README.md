@@ -81,15 +81,15 @@ Adding a single word triggers automatic enrichment:
 * Etymology, emotional tone, synonyms, and antonyms
 * Real-world collocations from ChromaDB
 
-### 🎨 Minimalist Editorial Design
-Crafted with typographic discipline inspired by classic print editorial design, built with **React 19** and **Tailwind CSS v4** for fluid micro-interactions and distraction-free learning.
+### Minimalist Editorial Design
+Crafted with typographic discipline inspired by classic print editorial design, built with **React 19** and **Tailwind CSS v4** for fluid micro-interactions, clean serif layouts, and distraction-free learning with a strict zero-emoji aesthetic.
 
-### 🏛️ Standardized Corpus-Grounded Decks (Peer-Reviewed & Verifiable)
+### Standardized Corpus-Grounded Decks (Peer-Reviewed & Verifiable)
 Never start from scratch or rely on ad-hoc hallucinated wordlists. UsedIt provides verified lexical sets derived from standardized linguistic corpora and academic literature:
-* 🎓 **Coxhead's Academic Word List (AWL)**: High-frequency academic word families identified across 3.5 million running words of peer-reviewed articles (*Averil Coxhead, Victoria University of Wellington*).
-* 🏛️ **Oxford 5000 (CEFR B2-C1)**: Advanced communicative vocabulary selected from Oxford University Press's 2.5-billion-word corpus to bridge the gap between basic adequacy and nuanced fluency.
-* ⚖️ **ETS GRE Analytical Measure**: Essential discriminator headwords from official GRE Verbal Reasoning and Barron's 333, calibrated for dialectic contrast and high-order reasoning.
-* 🎙️ **COCA High-Yield Collocations**: Drawn from the 1-billion-word *Corpus of Contemporary American English* (Mark Davies, BYU), filtered for high Mutual Information (MI) scores in authentic spoken registers.
+* **Coxhead's Academic Word List (AWL)**: High-frequency academic word families identified across 3.5 million running words of peer-reviewed articles (*Averil Coxhead, Victoria University of Wellington*).
+* **Oxford 5000 (CEFR B2-C1)**: Advanced communicative vocabulary selected from Oxford University Press's 2.5-billion-word corpus to bridge the gap between basic adequacy and nuanced fluency.
+* **ETS GRE Analytical Measure**: Essential discriminator headwords from official GRE Verbal Reasoning and Barron's 333, calibrated for dialectic contrast and high-order reasoning.
+* **COCA High-Yield Collocations**: Drawn from the 1-billion-word *Corpus of Contemporary American English* (Mark Davies, BYU), filtered for high Mutual Information (MI) scores in authentic spoken registers.
 
 ---
 
@@ -292,25 +292,29 @@ UsedIt launches directly into your Word Library in **Frictionless Local-First Mo
 
 ---
 
-## 📡 Core API Reference
+## Core API Reference
 
-Interactive API documentation with request execution is accessible at **[http://localhost:8000/docs](http://localhost:8000/docs)**.
+Interactive OpenAPI documentation with live execution is accessible at **[http://localhost:8000/docs](http://localhost:8000/docs)**.
 
-| Endpoint | Method | Auth | Description |
+> **Local-First Architecture**: All endpoints operate in local zero-login mode by default. User identification resolves automatically to `local_learner` without requiring Bearer tokens or cookies. Standard JWT authentication remains optionally available for multi-user cloud deployments.
+
+| Endpoint | Method | Access | Description |
 | :--- | :---: | :---: | :--- |
-| `/auth/register` | `POST` | Public | Register a new username and password |
-| `/auth/login` | `POST` | Public | Authenticate and obtain JWT Bearer Token |
-| `/auth/me` | `GET` | Bearer | Get current user's profile and strictness preferences |
-| `/auth/me` | `PATCH` | Bearer | Update user strictness (`Lenient`, `Normal`, `Strict`) |
-| `/words` | `GET` | Bearer | Paginated vocabulary list with status filters (`NEW`, `PRACTICING`, `MASTERED`) |
-| `/words` | `POST` | Bearer | Add word to user library (triggers automatic dictionary enrichment) |
-| `/words/stats` | `GET` | Bearer | Aggregate count of mastered, practicing, and new words |
-| `/words/{id}` | `GET` | Bearer | Full word metadata, ChromaDB collocations, and practice history |
-| `/words/{id}` | `DELETE`| Bearer | Remove word from user library (preserves shared dictionary) |
-| `/practice/{id}/scene` | `GET` | Bearer | Generate a realistic contextual prompt using LLM (`temp=0.3`) |
-| `/practice/{id}/judge` | `POST` | Bearer | Evaluate sentence meaning, grammar, and naturalness with RAG rewrite |
-| `/sessions` | `GET` | Bearer | List practice history sessions for the authenticated user |
-| `/sessions/stats` | `GET` | Bearer | Aggregate practice statistics (total sessions, accuracy rate) |
+| `/auth/me` | `GET` | Local / Bearer | Retrieve active user profile, strictness settings, and metadata |
+| `/auth/me` | `PATCH` | Local / Bearer | Update grading strictness (`Lenient`, `Normal`, `Strict`) |
+| `/words` | `GET` | Local / Bearer | Fetch library words with optional `status` filter and `search` query (defaults to full library, 0ms search) |
+| `/words` | `POST` | Local / Bearer | Add word to personal library with automatic dictionary enrichment |
+| `/words/batch` | `POST` | Local / Bearer | Batch import vocabulary entries with automatic deduplication |
+| `/words/stats` | `GET` | Local / Bearer | Aggregate vocabulary counts (`mastered`, `practicing`, `new`, `total`) |
+| `/words/{id}` | `GET` | Local / Bearer | Comprehensive word metadata, ChromaDB collocations, and practice logs |
+| `/words/{id}` | `DELETE` | Local / Bearer | Remove word from user library (preserves shared dictionary definition) |
+| `/words/{id}/scene` | `GET` | Local / Bearer | Generate authentic conversational scenario using LLM (`temperature=0.3`) |
+| `/words/{id}/judge` | `POST` | Local / Bearer | Evaluate sentence syntax, semantics, and naturalness with RAG rewrite |
+| `/decks` | `GET` | Public | List standardized academic corpora (AWL, Oxford 5000, GRE, COCA) |
+| `/decks/{id}` | `GET` | Public | Retrieve curated deck details, literature citations, and vocabulary list |
+| `/decks/{id}/import`| `POST` | Local / Bearer | Import all entries from an academic deck into the active library |
+| `/sessions` | `GET` | Local / Bearer | List complete practice session history for the current user |
+| `/sessions/stats` | `GET` | Local / Bearer | Aggregate practice metrics (total sessions, passed count, accuracy) |
 
 ---
 

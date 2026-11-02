@@ -139,17 +139,17 @@ Rather than redundantly duplicating word definitions for every user, UsedIt impl
 
 ### Advantages
 1. **Computational & API Efficiency**: When any user adds a word, it is enriched with definitions and linguistic metadata exactly once. Future users who add the same word reuse this shared entry instantly.
-2. **Fast Paginated Queries**: User word lists (`GET /words`) only scan lightweight foreign key relationships, achieving sub-millisecond query execution.
-3. **Zero Maintenance**: SQLite (`backend/data/dev.db`) operates as an embedded file database. Tables are automatically created during FastAPI's `lifespan` startup hook without requiring external database servers or Docker containers.
+2. **High-Performance Full-Library Loading & 0ms Search**: Vocabulary queries (`GET /words?limit=1000`) fetch user words in a single compressed payload (< 30 KB for hundreds of entries), eliminating sluggish infinite scroll walls and enabling instantaneous 0ms client-side search alongside server-side fuzzy filtering (`search=term`).
+3. **Curated Academic Corpus Ingestion (`/decks`)**: Pre-compiled academic lexicons (Coxhead AWL, Oxford 5000, GRE Analytical, COCA) can be browsed and bulk-imported with automatic deduplication against existing entries.
+4. **Zero Maintenance**: SQLite (`backend/data/dev.db`) operates as an embedded file database. Tables are automatically created during FastAPI's `lifespan` startup hook without requiring external database servers or Docker containers.
 
 ---
 
 ## 🔐 4. Authentication & Security
 
-- **Password Security**: Passwords are cryptographically salted and hashed using `bcrypt` (never stored as plain text).
-- **Stateless Session Tokens**: Authenticated sessions issue signed JSON Web Tokens (JWT) with standard 7-day expiration (`HS256`).
-- **OAuth 2.0 Integration**: Supports Google OAuth via Authlib and Starlette `SessionMiddleware`, automatically registering new users upon their first Google sign-in.
-- **Tenant Isolation**: All word and session queries strictly filter by `current_user.id` resolved via FastAPI's dependency injection (`Depends(get_current_user)`).
+- **Local-First Auto-Provisioning**: Designed for instant, zero-friction local usage. If no JWT token is supplied in requests, `get_current_user` automatically resolves to a persistent local single-tenant account (`User(id=1, username="local_learner")`), ensuring immediate offline operation without registration or login barriers.
+- **Optional Multi-Tenant JWT / OAuth**: For cloud or multi-user deployments, the backend retains full stateless JWT authentication (`HS256`, 7-day expiration) and Google OAuth 2.0 via `Authlib`.
+- **Tenant Isolation**: All word library, session history, and strictness preference queries isolate by `current_user.id` resolved via FastAPI's dependency injection (`Depends(get_current_user)`).
 
 ---
 

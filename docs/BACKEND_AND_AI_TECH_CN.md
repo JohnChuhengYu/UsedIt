@@ -139,17 +139,17 @@ collocations = results["documents"][0]
 
 ### 核心收益
 1. **极大节约算力与存储**：当任何用户添加一个新词时，系统做且仅做一次深度词典丰富（Enrichment）。全站后续所有用户学习该词直接复用该缓存条目，避免重复消耗大模型与外部 API。
-2. **极速分页响应**：用户端列表（`/words`）只需扫描轻量关系，接口达到毫秒级响应。
-3. **零运维免维护**：采用嵌入式 SQLite（`backend/data/dev.db`），FastAPI 启动时由生命周期钩子（`lifespan`）自动完成建表与迁移，无需单独搭建 MySQL 实例或 Docker。
+2. **全量直出与 0ms 极速检索**：单词库接口（`GET /words?limit=1000`）采用轻量单次全量加载（几百个词仅约 20~30 KB），彻底剔除了卡顿的 20 词分页滚动墙，结合前端实现 0ms 本地全库即时搜索，同时后端支持 `search` 模糊查询。
+3. **权威学术语料库直通 (`/decks`)**：内置 Coxhead AWL 学术词表、牛津 5000（B2-C1）、GRE Analytical 等标准语料，支持一键去重式批量导入。
+4. **零运维免维护**：采用嵌入式 SQLite（`backend/data/dev.db`），FastAPI 启动时由生命周期钩子（`lifespan`）自动完成建表与迁移，无需单独搭建 MySQL 实例或 Docker。
 
 ---
 
-## 🔐 四、安全与鉴权架构 (Auth & Security)
+## 🔐 四、本地免登录与鉴权架构 (Auth & Security)
 
-- **密码安全加盐**：用户密码使用 `bcrypt` 自动加盐哈希（绝不存储任何明文）。
-- **无状态 JWT 令牌**：登录成功签发有效期 7 天的 JWT Access Token（HS256 签名算法）。
-- **Google OAuth 2.0 第三方登录**：集成 `Authlib` 与 Starlette `SessionMiddleware`，支持一键免密授权，首次登录自动建号。
-- **多租户数据隔离**：所有单词与练习接口均通过 FastAPI 依赖注入（`Depends(get_current_user)`）严格根据 `current_user.id` 实施数据边界隔离。
+- **Local-First 自动归属机制**：面向纯本地极简运行，当请求未携带 Token 时，`get_current_user` 自动降级为单租户默认账户（`User(id=1, username="local_learner")`），开箱即用，免除繁琐注册和登录墙。
+- **可选多租户与云端鉴权**：系统内部仍完整保留无状态 JWT 签名机制（HS256 算法，有效期 7 天）以及 Google OAuth 2.0 接入能力，以便未来一键迁移至云端多用户 SaaS。
+- **租户数据边界隔离**：所有词库查询、会话记录及评判严格度设置均强制绑定 `current_user.id`，保障数据纯净与隐私。
 
 ---
 

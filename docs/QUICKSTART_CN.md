@@ -217,25 +217,26 @@ npm run dev
 
 ## 📡 后端 API 接口速查
 
-启动后端后可直接在 **[http://localhost:8000/docs](http://localhost:8000/docs)** 体验全部接口：
+启动后端后可直接在 **[http://localhost:8000/docs](http://localhost:8000/docs)** 体验全部接口。系统采用 **Local-First（本地免登录优先）** 架构，默认自动归属本地用户 `local_learner`，无需携带 Bearer Token 即可直接调用；云端部署时亦可无缝切换为多用户 JWT 认证。
 
 | 模块 | 方法 | 端点 | 认证要求 | 功能描述 |
 | :--- | :--- | :--- | :--- | :--- |
-| **Auth** | `POST` | `/auth/register` | 无 | 用户名密码注册新账号 |
-| | `POST` | `/auth/login` | 无 | 登录获取 JWT Access Token |
-| | `GET` | `/auth/me` | Bearer Token | 获取当前登录用户的个人信息及设置 |
-| | `PATCH` | `/auth/me` | Bearer Token | 更新批改严格度设置 (`Lenient`/`Normal`/`Strict`) |
-| | `GET` | `/auth/google` | 无 | 发起 Google OAuth 授权跳转 |
-| **Words** | `GET` | `/words` | Bearer Token | 分页获取当前用户的单词列表（支持按状态筛选） |
-| | `POST` | `/words` | Bearer Token | 添加新单词（自动触发 Dictionary 条目丰富） |
-| | `GET` | `/words/stats` | Bearer Token | 获取掌握/练习中/新词的统计数字 |
-| | `GET` | `/words/{id}` | Bearer Token | 获取单词全量详情（释义、词源、搭配例句、历史练习） |
-| | `DELETE` | `/words/{id}` | Bearer Token | 从用户词表中移除该词（保留全局 Dictionary） |
-| **Practice** | `GET` | `/practice/{word_id}/scene` | Bearer Token | 结合 ChromaDB 真实语料与 Ollama 动态生成真实交际场景 |
-| | `POST` | `/practice/{word_id}/judge` | Bearer Token | 对用户提交的造句进行语法、语义与地道度双重智能评判 |
-| **Sessions** | `GET` | `/sessions` | Bearer Token | 列出当前用户所有的历史造句与 AI 反馈记录 |
-| | `POST` | `/sessions` | Bearer Token | 保存一次完成的练习会话记录 |
-| | `GET` | `/sessions/stats` | Bearer Token | 获取练习总数、通过次数及综合正确率 |
+| **Settings** | `GET` | `/auth/me` | 本地免登 / Bearer | 获取当前用户偏好设置及批改严格度 |
+| | `PATCH` | `/auth/me` | 本地免登 / Bearer | 更新批改严格度设置 (`Lenient`/`Normal`/`Strict`) |
+| **Words** | `GET` | `/words` | 本地免登 / Bearer | 全量获取单词列表，支持关键词即时搜索与状态过滤 |
+| | `POST` | `/words` | 本地免登 / Bearer | 添加新单词（自动触发 Dictionary 条目丰富与音标拉取） |
+| | `POST` | `/words/batch` | 本地免登 / Bearer | 批量导入单词列表并自动去重 |
+| | `GET` | `/words/stats` | 本地免登 / Bearer | 获取掌握/练习中/新词的统计数字 |
+| | `GET` | `/words/{id}` | 本地免登 / Bearer | 获取单词全量详情（释义、词源、搭配例句、历史练习） |
+| | `DELETE` | `/words/{id}` | 本地免登 / Bearer | 从用户词表中移除该词（保留全局 Dictionary） |
+| | `GET` | `/words/{id}/scene` | 本地免登 / Bearer | 结合 ChromaDB 真实语料与 Ollama 动态生成真实交际场景 |
+| | `POST` | `/words/{id}/judge` | 本地免登 / Bearer | 对用户提交的造句进行语法、语义与地道度双重智能评判 |
+| **Decks** | `GET` | `/decks` | 公开 | 获取标准化学术语料库列表（AWL / Oxford 5000 / GRE / COCA） |
+| | `GET` | `/decks/{id}` | 公开 | 获取语料库详情、文献引用与包含的词汇列表 |
+| | `POST` | `/decks/{id}/import`| 本地免登 / Bearer | 一键全量导入指定学术语料库到个人词库 |
+| **Sessions** | `GET` | `/sessions` | 本地免登 / Bearer | 列出当前用户所有的历史造句与 AI 反馈记录 |
+| | `POST` | `/sessions` | 本地免登 / Bearer | 保存一次完成的练习会话记录 |
+| | `GET` | `/sessions/stats` | 本地免登 / Bearer | 获取练习总数、通过次数及综合正确率 |
 
 ---
 
