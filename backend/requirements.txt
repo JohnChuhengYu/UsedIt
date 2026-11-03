@@ -4,7 +4,7 @@ sqlmodel
 python-dotenv
 authlib
 httpx
-python-jose[cryptography]
+PyJWT[crypto]>=2.10.0
 passlib[bcrypt]
 requests
 chromadb

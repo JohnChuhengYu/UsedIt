@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 import bcrypt
-from jose import jwt, JWTError
+import jwt
+from jwt.exceptions import PyJWTError as JWTError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
